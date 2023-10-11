@@ -8,7 +8,7 @@ import (
 	ethcommon "github.com/ethereum/go-ethereum/common"
 )
 
-// EthHash is a nullable ethcommon.Hash.
+// EthHash is a nullable github.com/ethereum/go-ethereum/common.Hash.
 type EthHash struct {
 	Hash  ethcommon.Hash
 	Valid bool
@@ -22,7 +22,7 @@ func NewEthHash(h ethcommon.Hash, valid bool) EthHash {
 	}
 }
 
-// NullableString returns the String representation of the EthHash.
+// NullableString returns the String.
 func (h EthHash) NullableString() String {
 	if !h.Valid {
 		return NewString("", false)
