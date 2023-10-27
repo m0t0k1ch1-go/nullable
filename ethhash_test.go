@@ -93,7 +93,7 @@ func TestEthHashScan(t *testing.T) {
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				var h nullable.EthHash
-				if err := (&h).Scan(tc.in); err != nil {
+				if err := h.Scan(tc.in); err != nil {
 					t.Fatal(err)
 				}
 
