@@ -13,17 +13,17 @@ func TestStringMarshalJSON(t *testing.T) {
 		tcs := []struct {
 			name string
 			in   nullable.String
-			out  string
+			out  []byte
 		}{
 			{
 				name: "null",
 				in:   nullable.NewString("", false),
-				out:  "null",
+				out:  []byte("null"),
 			},
 			{
 				name: "not null",
 				in:   nullable.NewString("not null", true),
-				out:  `"not null"`,
+				out:  []byte(`"not null"`),
 			},
 		}
 
@@ -34,7 +34,7 @@ func TestStringMarshalJSON(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				testutil.Equal(t, tc.out, string(b))
+				testutil.Equal(t, tc.out, b)
 			})
 		}
 	})
