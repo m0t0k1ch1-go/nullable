@@ -46,3 +46,23 @@ func (s *String) UnmarshalJSON(b []byte) error {
 
 	return nil
 }
+
+// MarshalYAML implements the yaml.Marshaler interface.
+func (s String) MarshalYAML() (any, error) {
+	if !s.Valid {
+		return nil, nil
+	}
+
+	return s.String, nil
+}
+
+// UnmarshalYAML implements the yaml.Unmarshaler interface.
+func (s *String) UnmarshalYAML(unmarshal func(any) error) error {
+	if err := unmarshal(&s.String); err != nil {
+		return err
+	}
+
+	s.Valid = true
+
+	return nil
+}
