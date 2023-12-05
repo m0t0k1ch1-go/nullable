@@ -92,12 +92,12 @@ func TestEthHashScan(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				var h nullable.EthHash
-				if err := h.Scan(tc.in); err != nil {
+				var n nullable.EthHash
+				if err := n.Scan(tc.in); err != nil {
 					t.Fatal(err)
 				}
 
-				testutil.Equal(t, tc.out, h)
+				testutil.Equal(t, tc.out, n)
 			})
 		}
 	})
@@ -156,12 +156,12 @@ func TestEthHashUnmarshalJSON(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				var h nullable.EthHash
-				if err := json.Unmarshal(tc.in, &h); err != nil {
+				var n nullable.EthHash
+				if err := json.Unmarshal(tc.in, &n); err != nil {
 					t.Fatal(err)
 				}
 
-				testutil.Equal(t, tc.out, h)
+				testutil.Equal(t, tc.out, n)
 			})
 		}
 	})

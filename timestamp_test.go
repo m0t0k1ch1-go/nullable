@@ -93,12 +93,12 @@ func TestTimestampScan(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				var ts nullable.Timestamp
-				if err := ts.Scan(tc.in); err != nil {
+				var n nullable.Timestamp
+				if err := n.Scan(tc.in); err != nil {
 					t.Fatal(err)
 				}
 
-				testutil.Equal(t, tc.out, ts, cmp.AllowUnexported(timeutil.Timestamp{}))
+				testutil.Equal(t, tc.out, n, cmp.AllowUnexported(timeutil.Timestamp{}))
 			})
 		}
 	})
@@ -157,12 +157,12 @@ func TestTimestampUnmarshalJSON(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				var ts nullable.Timestamp
-				if err := json.Unmarshal(tc.in, &ts); err != nil {
+				var n nullable.Timestamp
+				if err := json.Unmarshal(tc.in, &n); err != nil {
 					t.Fatal(err)
 				}
 
-				testutil.Equal(t, tc.out, ts, cmp.AllowUnexported(timeutil.Timestamp{}))
+				testutil.Equal(t, tc.out, n, cmp.AllowUnexported(timeutil.Timestamp{}))
 			})
 		}
 	})

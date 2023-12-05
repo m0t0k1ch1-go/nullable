@@ -22,47 +22,47 @@ func NewString(s string, valid bool) String {
 }
 
 // MarshalJSON implements the json.Marshaler interface.
-func (s String) MarshalJSON() ([]byte, error) {
-	if !s.Valid {
+func (n String) MarshalJSON() ([]byte, error) {
+	if !n.Valid {
 		return []byte("null"), nil
 	}
 
-	return json.Marshal(s.String)
+	return json.Marshal(n.String)
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
-func (s *String) UnmarshalJSON(b []byte) error {
+func (n *String) UnmarshalJSON(b []byte) error {
 	if bytes.Equal(b, []byte("null")) {
-		s.String, s.Valid = "", false
+		n.String, n.Valid = "", false
 
 		return nil
 	}
 
-	if err := json.Unmarshal(b, &s.String); err != nil {
+	if err := json.Unmarshal(b, &n.String); err != nil {
 		return err
 	}
 
-	s.Valid = true
+	n.Valid = true
 
 	return nil
 }
 
 // MarshalYAML implements the yaml.Marshaler interface.
-func (s String) MarshalYAML() (any, error) {
-	if !s.Valid {
+func (n String) MarshalYAML() (any, error) {
+	if !n.Valid {
 		return nil, nil
 	}
 
-	return s.String, nil
+	return n.String, nil
 }
 
 // UnmarshalYAML implements the yaml.Unmarshaler interface.
-func (s *String) UnmarshalYAML(unmarshal func(any) error) error {
-	if err := unmarshal(&s.String); err != nil {
+func (n *String) UnmarshalYAML(unmarshal func(any) error) error {
+	if err := unmarshal(&n.String); err != nil {
 		return err
 	}
 
-	s.Valid = true
+	n.Valid = true
 
 	return nil
 }
