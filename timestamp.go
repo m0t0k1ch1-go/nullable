@@ -22,62 +22,62 @@ func NewTimestamp(ts timeutil.Timestamp, valid bool) Timestamp {
 }
 
 // NullableString returns the String.
-func (ts Timestamp) NullableString() String {
-	if !ts.Valid {
+func (n Timestamp) NullableString() String {
+	if !n.Valid {
 		return NewString("", false)
 	}
 
-	return NewString(ts.Timestamp.String(), true)
+	return NewString(n.Timestamp.String(), true)
 }
 
 // Value implements the driver.Valuer interface.
-func (ts Timestamp) Value() (driver.Value, error) {
-	if !ts.Valid {
+func (n Timestamp) Value() (driver.Value, error) {
+	if !n.Valid {
 		return nil, nil
 	}
 
-	return ts.Timestamp.Value()
+	return n.Timestamp.Value()
 }
 
 // Scan implements the sql.Scanner interface.
-func (ts *Timestamp) Scan(src any) error {
+func (n *Timestamp) Scan(src any) error {
 	if src == nil {
-		ts.Timestamp, ts.Valid = timeutil.Timestamp{}, false
+		n.Timestamp, n.Valid = timeutil.Timestamp{}, false
 
 		return nil
 	}
 
-	if err := ts.Timestamp.Scan(src); err != nil {
+	if err := n.Timestamp.Scan(src); err != nil {
 		return err
 	}
 
-	ts.Valid = true
+	n.Valid = true
 
 	return nil
 }
 
 // MarshalJSON implements the json.Marshaler interface.
-func (ts Timestamp) MarshalJSON() ([]byte, error) {
-	if !ts.Valid {
+func (n Timestamp) MarshalJSON() ([]byte, error) {
+	if !n.Valid {
 		return []byte("null"), nil
 	}
 
-	return ts.Timestamp.MarshalJSON()
+	return n.Timestamp.MarshalJSON()
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
-func (ts *Timestamp) UnmarshalJSON(b []byte) error {
+func (n *Timestamp) UnmarshalJSON(b []byte) error {
 	if bytes.Equal(b, []byte("null")) {
-		ts.Timestamp, ts.Valid = timeutil.Timestamp{}, false
+		n.Timestamp, n.Valid = timeutil.Timestamp{}, false
 
 		return nil
 	}
 
-	if err := ts.Timestamp.UnmarshalJSON(b); err != nil {
+	if err := n.Timestamp.UnmarshalJSON(b); err != nil {
 		return err
 	}
 
-	ts.Valid = true
+	n.Valid = true
 
 	return nil
 }

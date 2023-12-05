@@ -63,12 +63,12 @@ func TestStringUnmarshalJSON(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				var s nullable.String
-				if err := json.Unmarshal(tc.in, &s); err != nil {
+				var n nullable.String
+				if err := json.Unmarshal(tc.in, &n); err != nil {
 					t.Fatal(err)
 				}
 
-				testutil.Equal(t, tc.out, s)
+				testutil.Equal(t, tc.out, n)
 			})
 		}
 	})
@@ -127,12 +127,12 @@ func TestStringUnmarshalYAML(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				var s nullable.String
-				if err := yaml.Unmarshal(tc.in, &s); err != nil {
+				var n nullable.String
+				if err := yaml.Unmarshal(tc.in, &n); err != nil {
 					t.Fatal(err)
 				}
 
-				testutil.Equal(t, tc.out, s)
+				testutil.Equal(t, tc.out, n)
 			})
 		}
 	})

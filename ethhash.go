@@ -23,62 +23,62 @@ func NewEthHash(h ethcommon.Hash, valid bool) EthHash {
 }
 
 // NullableString returns the String.
-func (h EthHash) NullableString() String {
-	if !h.Valid {
+func (n EthHash) NullableString() String {
+	if !n.Valid {
 		return NewString("", false)
 	}
 
-	return NewString(h.Hash.String(), true)
+	return NewString(n.Hash.String(), true)
 }
 
 // Value implements the driver.Valuer interface.
-func (h EthHash) Value() (driver.Value, error) {
-	if !h.Valid {
+func (n EthHash) Value() (driver.Value, error) {
+	if !n.Valid {
 		return nil, nil
 	}
 
-	return h.Hash.Value()
+	return n.Hash.Value()
 }
 
 // Scan implements the sql.Scanner interface.
-func (h *EthHash) Scan(src any) error {
+func (n *EthHash) Scan(src any) error {
 	if src == nil {
-		h.Hash, h.Valid = ethcommon.Hash{}, false
+		n.Hash, n.Valid = ethcommon.Hash{}, false
 
 		return nil
 	}
 
-	if err := h.Hash.Scan(src); err != nil {
+	if err := n.Hash.Scan(src); err != nil {
 		return err
 	}
 
-	h.Valid = true
+	n.Valid = true
 
 	return nil
 }
 
 // MarshalJSON implements the json.Marshaler interface.
-func (h EthHash) MarshalJSON() ([]byte, error) {
-	if !h.Valid {
+func (n EthHash) MarshalJSON() ([]byte, error) {
+	if !n.Valid {
 		return []byte("null"), nil
 	}
 
-	return json.Marshal(h.Hash.String())
+	return json.Marshal(n.Hash.String())
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
-func (h *EthHash) UnmarshalJSON(b []byte) error {
+func (n *EthHash) UnmarshalJSON(b []byte) error {
 	if bytes.Equal(b, []byte("null")) {
-		h.Hash, h.Valid = ethcommon.Hash{}, false
+		n.Hash, n.Valid = ethcommon.Hash{}, false
 
 		return nil
 	}
 
-	if err := h.Hash.UnmarshalJSON(b); err != nil {
+	if err := n.Hash.UnmarshalJSON(b); err != nil {
 		return err
 	}
 
-	h.Valid = true
+	n.Valid = true
 
 	return nil
 }

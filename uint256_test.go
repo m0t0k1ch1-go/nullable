@@ -108,13 +108,13 @@ func TestUint256Scan(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				var i nullable.Uint256
-				if err := i.Scan(tc.in); err != nil {
+				var n nullable.Uint256
+				if err := n.Scan(tc.in); err != nil {
 					t.Fatal(err)
 				}
 
-				testutil.Equal(t, tc.out.Valid, i.Valid)
-				testutil.Equal(t, i.Uint256.BigInt().Cmp(tc.out.Uint256.BigInt()), 0)
+				testutil.Equal(t, tc.out.Valid, n.Valid)
+				testutil.Equal(t, n.Uint256.BigInt().Cmp(tc.out.Uint256.BigInt()), 0)
 			})
 		}
 	})
@@ -183,13 +183,13 @@ func TestUint256UnmarshalJSON(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				var i nullable.Uint256
-				if err := json.Unmarshal(tc.in, &i); err != nil {
+				var n nullable.Uint256
+				if err := json.Unmarshal(tc.in, &n); err != nil {
 					t.Fatal(err)
 				}
 
-				testutil.Equal(t, tc.out.Valid, i.Valid)
-				testutil.Equal(t, i.Uint256.BigInt().Cmp(tc.out.Uint256.BigInt()), 0)
+				testutil.Equal(t, tc.out.Valid, n.Valid)
+				testutil.Equal(t, n.Uint256.BigInt().Cmp(tc.out.Uint256.BigInt()), 0)
 			})
 		}
 	})
