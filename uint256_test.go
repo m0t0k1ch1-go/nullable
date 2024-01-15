@@ -170,13 +170,33 @@ func TestUint256UnmarshalJSON(t *testing.T) {
 				nullable.NewUint256(bigutil.Uint256{}, false),
 			},
 			{
-				"min",
+				"min (hexadecimal string)",
 				[]byte(`"0x0"`),
 				nullable.NewUint256(bigutil.MustBigIntToUint256(big.NewInt(0)), true),
 			},
 			{
-				"max",
+				"max (hexadecimal string)",
 				[]byte(`"0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"`),
+				nullable.NewUint256(bigutil.MustBigIntToUint256(ethmath.MaxBig256), true),
+			},
+			{
+				"min (decimal string)",
+				[]byte(`"0"`),
+				nullable.NewUint256(bigutil.MustBigIntToUint256(big.NewInt(0)), true),
+			},
+			{
+				"max (decimal string)",
+				[]byte(`"115792089237316195423570985008687907853269984665640564039457584007913129639935"`),
+				nullable.NewUint256(bigutil.MustBigIntToUint256(ethmath.MaxBig256), true),
+			},
+			{
+				"min (number)",
+				[]byte("0"),
+				nullable.NewUint256(bigutil.MustBigIntToUint256(big.NewInt(0)), true),
+			},
+			{
+				"max (number)",
+				[]byte("115792089237316195423570985008687907853269984665640564039457584007913129639935"),
 				nullable.NewUint256(bigutil.MustBigIntToUint256(ethmath.MaxBig256), true),
 			},
 		}
