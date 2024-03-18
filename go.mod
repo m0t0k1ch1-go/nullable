@@ -5,7 +5,7 @@ go 1.22
 require (
 	github.com/ethereum/go-ethereum v1.13.14
 	github.com/google/go-cmp v0.6.0
-	github.com/m0t0k1ch1-go/bigutil/v2 v2.2.0
+	github.com/m0t0k1ch1-go/bigutil/v2 v2.2.1
 	github.com/m0t0k1ch1-go/timeutil/v3 v3.1.0
 	gopkg.in/yaml.v2 v2.4.0
 )
