@@ -3,6 +3,7 @@ package nullable
 import (
 	"bytes"
 	"database/sql/driver"
+	"encoding/json"
 
 	"github.com/m0t0k1ch1-go/bigutil/v2"
 )
@@ -62,7 +63,7 @@ func (n Uint256) MarshalJSON() ([]byte, error) {
 		return []byte("null"), nil
 	}
 
-	return n.Uint256.MarshalJSON()
+	return json.Marshal(n.Uint256)
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
@@ -73,7 +74,7 @@ func (n *Uint256) UnmarshalJSON(b []byte) error {
 		return nil
 	}
 
-	if err := n.Uint256.UnmarshalJSON(b); err != nil {
+	if err := json.Unmarshal(b, &n.Uint256); err != nil {
 		return err
 	}
 
