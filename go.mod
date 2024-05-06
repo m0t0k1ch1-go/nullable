@@ -3,7 +3,7 @@ module github.com/m0t0k1ch1-go/nullable
 go 1.22
 
 require (
-	github.com/ethereum/go-ethereum v1.13.14
+	github.com/ethereum/go-ethereum v1.13.15
 	github.com/google/go-cmp v0.6.0
 	github.com/m0t0k1ch1-go/bigutil/v2 v2.4.0
 	github.com/m0t0k1ch1-go/timeutil/v3 v3.1.0
@@ -15,4 +15,5 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	golang.org/x/crypto v0.22.0 // indirect
 	golang.org/x/sys v0.19.0 // indirect
+	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 )
