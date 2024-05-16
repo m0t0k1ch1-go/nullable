@@ -4,11 +4,39 @@ import (
 	"encoding/json"
 	"testing"
 
+	"github.com/m0t0k1ch1-go/coreutil"
 	"gopkg.in/yaml.v2"
 
 	"github.com/m0t0k1ch1-go/nullable"
 	"github.com/m0t0k1ch1-go/nullable/internal/testutil"
 )
+
+func TestNewStringFromPtr(t *testing.T) {
+	t.Run("success", func(t *testing.T) {
+		tcs := []struct {
+			name string
+			in   *string
+			out  nullable.String
+		}{
+			{
+				name: "nil",
+				in:   nil,
+				out:  nullable.NewString("", false),
+			},
+			{
+				name: "not nil",
+				in:   coreutil.Ptr("not nil"),
+				out:  nullable.NewString("not nil", true),
+			},
+		}
+
+		for _, tc := range tcs {
+			t.Run(tc.name, func(t *testing.T) {
+				testutil.Equal(t, tc.out, nullable.NewStringFromPtr(tc.in))
+			})
+		}
+	})
+}
 
 func TestStringMarshalJSON(t *testing.T) {
 	t.Run("success", func(t *testing.T) {

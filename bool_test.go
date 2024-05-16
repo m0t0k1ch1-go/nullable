@@ -4,9 +4,38 @@ import (
 	"encoding/json"
 	"testing"
 
+	"github.com/m0t0k1ch1-go/coreutil"
+
 	"github.com/m0t0k1ch1-go/nullable"
 	"github.com/m0t0k1ch1-go/nullable/internal/testutil"
 )
+
+func TestNewBoolFromPtr(t *testing.T) {
+	t.Run("success", func(t *testing.T) {
+		tcs := []struct {
+			name string
+			in   *bool
+			out  nullable.Bool
+		}{
+			{
+				name: "nil",
+				in:   nil,
+				out:  nullable.NewBool(false, false),
+			},
+			{
+				name: "not nil",
+				in:   coreutil.Ptr(true),
+				out:  nullable.NewBool(true, true),
+			},
+		}
+
+		for _, tc := range tcs {
+			t.Run(tc.name, func(t *testing.T) {
+				testutil.Equal(t, tc.out, nullable.NewBoolFromPtr(tc.in))
+			})
+		}
+	})
+}
 
 func TestBoolMarshalJSON(t *testing.T) {
 	t.Run("success", func(t *testing.T) {

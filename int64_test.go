@@ -4,9 +4,38 @@ import (
 	"encoding/json"
 	"testing"
 
+	"github.com/m0t0k1ch1-go/coreutil"
+
 	"github.com/m0t0k1ch1-go/nullable"
 	"github.com/m0t0k1ch1-go/nullable/internal/testutil"
 )
+
+func TestNewInt64FromPtr(t *testing.T) {
+	t.Run("success", func(t *testing.T) {
+		tcs := []struct {
+			name string
+			in   *int64
+			out  nullable.Int64
+		}{
+			{
+				name: "nil",
+				in:   nil,
+				out:  nullable.NewInt64(0, false),
+			},
+			{
+				name: "not nil",
+				in:   coreutil.Ptr(int64(1231006505)),
+				out:  nullable.NewInt64(1231006505, true),
+			},
+		}
+
+		for _, tc := range tcs {
+			t.Run(tc.name, func(t *testing.T) {
+				testutil.Equal(t, tc.out, nullable.NewInt64FromPtr(tc.in))
+			})
+		}
+	})
+}
 
 func TestInt64MarshalJSON(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
