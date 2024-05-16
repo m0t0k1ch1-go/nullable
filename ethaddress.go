@@ -74,7 +74,7 @@ func (n *EthAddress) UnmarshalJSON(b []byte) error {
 		return nil
 	}
 
-	if err := n.Address.UnmarshalJSON(b); err != nil {
+	if err := json.Unmarshal(b, &n.Address); err != nil {
 		return err
 	}
 
