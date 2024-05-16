@@ -3,6 +3,7 @@ package nullable
 import (
 	"bytes"
 	"database/sql/driver"
+	"encoding/json"
 
 	"github.com/m0t0k1ch1-go/timeutil/v3"
 )
@@ -62,7 +63,7 @@ func (n Timestamp) MarshalJSON() ([]byte, error) {
 		return []byte("null"), nil
 	}
 
-	return n.Timestamp.MarshalJSON()
+	return json.Marshal(n.Timestamp)
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
@@ -73,7 +74,7 @@ func (n *Timestamp) UnmarshalJSON(b []byte) error {
 		return nil
 	}
 
-	if err := n.Timestamp.UnmarshalJSON(b); err != nil {
+	if err := json.Unmarshal(b, &n.Timestamp); err != nil {
 		return err
 	}
 

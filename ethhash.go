@@ -74,7 +74,7 @@ func (n *EthHash) UnmarshalJSON(b []byte) error {
 		return nil
 	}
 
-	if err := n.Hash.UnmarshalJSON(b); err != nil {
+	if err := json.Unmarshal(b, &n.Hash); err != nil {
 		return err
 	}
 
