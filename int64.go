@@ -21,6 +21,15 @@ func NewInt64(i int64, valid bool) Int64 {
 	}
 }
 
+// NewInt64FromPtr returns a new Int64 from a pointer.
+func NewInt64FromPtr(i *int64) Int64 {
+	if i == nil {
+		return NewInt64(0, false)
+	}
+
+	return NewInt64(*i, true)
+}
+
 // MarshalJSON implements the json.Marshaler interface.
 func (n Int64) MarshalJSON() ([]byte, error) {
 	if !n.Valid {

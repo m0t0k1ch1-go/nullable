@@ -21,6 +21,15 @@ func NewInt32(i int32, valid bool) Int32 {
 	}
 }
 
+// NewInt32FromPtr returns a new Int32 from a pointer.
+func NewInt32FromPtr(i *int32) Int32 {
+	if i == nil {
+		return NewInt32(0, false)
+	}
+
+	return NewInt32(*i, true)
+}
+
 // MarshalJSON implements the json.Marshaler interface.
 func (n Int32) MarshalJSON() ([]byte, error) {
 	if !n.Valid {
