@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/m0t0k1ch1-go/timeutil/v3"
+	"github.com/m0t0k1ch1-go/timeutil/v4"
 
 	"github.com/m0t0k1ch1-go/nullable"
 	"github.com/m0t0k1ch1-go/nullable/internal/testutil"
@@ -27,7 +27,7 @@ func TestTimestampNullableString(t *testing.T) {
 			},
 			{
 				"not null",
-				nullable.NewTimestamp(timeutil.TimeToTimestamp(time.Unix(1231006505, 0)), true),
+				nullable.NewTimestamp(timeutil.NewTimestamp(time.Unix(1231006505, 0)), true),
 				nullable.NewString("1231006505", true),
 			},
 		}
@@ -54,7 +54,7 @@ func TestTimestampValue(t *testing.T) {
 			},
 			{
 				"not null",
-				nullable.NewTimestamp(timeutil.TimeToTimestamp(time.Unix(1231006505, 0)), true),
+				nullable.NewTimestamp(timeutil.NewTimestamp(time.Unix(1231006505, 0)), true),
 				int64(1231006505),
 			},
 		}
@@ -87,7 +87,7 @@ func TestTimestampScan(t *testing.T) {
 			{
 				"not null",
 				int64(1231006505),
-				nullable.NewTimestamp(timeutil.TimeToTimestamp(time.Unix(1231006505, 0)), true),
+				nullable.NewTimestamp(timeutil.NewTimestamp(time.Unix(1231006505, 0)), true),
 			},
 		}
 
@@ -118,7 +118,7 @@ func TestTimestampMarshalJSON(t *testing.T) {
 			},
 			{
 				"not null",
-				nullable.NewTimestamp(timeutil.TimeToTimestamp(time.Unix(1231006505, 0)), true),
+				nullable.NewTimestamp(timeutil.NewTimestamp(time.Unix(1231006505, 0)), true),
 				[]byte("1231006505"),
 			},
 		}
@@ -151,7 +151,7 @@ func TestTimestampUnmarshalJSON(t *testing.T) {
 			{
 				"not null",
 				[]byte("1231006505"),
-				nullable.NewTimestamp(timeutil.TimeToTimestamp(time.Unix(1231006505, 0)), true),
+				nullable.NewTimestamp(timeutil.NewTimestamp(time.Unix(1231006505, 0)), true),
 			},
 		}
 
