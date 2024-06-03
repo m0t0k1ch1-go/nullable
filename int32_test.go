@@ -18,14 +18,14 @@ func TestNewInt32FromPtr(t *testing.T) {
 			out  nullable.Int32
 		}{
 			{
-				name: "nil",
-				in:   nil,
-				out:  nullable.NewInt32(0, false),
+				"nil",
+				nil,
+				nullable.NewInt32(0, false),
 			},
 			{
-				name: "not nil",
-				in:   coreutil.Ptr(int32(1231006505)),
-				out:  nullable.NewInt32(1231006505, true),
+				"not nil",
+				coreutil.Ptr(int32(1231006505)),
+				nullable.NewInt32(1231006505, true),
 			},
 		}
 
@@ -45,14 +45,14 @@ func TestInt32MarshalJSON(t *testing.T) {
 			out  []byte
 		}{
 			{
-				name: "null",
-				in:   nullable.NewInt32(0, false),
-				out:  []byte("null"),
+				"null",
+				nullable.NewInt32(0, false),
+				[]byte("null"),
 			},
 			{
-				name: "not null",
-				in:   nullable.NewInt32(1231006505, true),
-				out:  []byte("1231006505"),
+				"not null",
+				nullable.NewInt32(1231006505, true),
+				[]byte("1231006505"),
 			},
 		}
 
@@ -77,14 +77,14 @@ func TestInt32UnmarshalJSON(t *testing.T) {
 			out  nullable.Int32
 		}{
 			{
-				name: "null",
-				in:   []byte("null"),
-				out:  nullable.NewInt32(0, false),
+				"null",
+				[]byte("null"),
+				nullable.NewInt32(0, false),
 			},
 			{
-				name: "not null",
-				in:   []byte("1231006505"),
-				out:  nullable.NewInt32(1231006505, true),
+				"not null",
+				[]byte("1231006505"),
+				nullable.NewInt32(1231006505, true),
 			},
 		}
 
