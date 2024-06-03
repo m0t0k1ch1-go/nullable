@@ -19,14 +19,14 @@ func TestNewStringFromPtr(t *testing.T) {
 			out  nullable.String
 		}{
 			{
-				name: "nil",
-				in:   nil,
-				out:  nullable.NewString("", false),
+				"nil",
+				nil,
+				nullable.NewString("", false),
 			},
 			{
-				name: "not nil",
-				in:   coreutil.Ptr("not nil"),
-				out:  nullable.NewString("not nil", true),
+				"not nil",
+				coreutil.Ptr("not nil"),
+				nullable.NewString("not nil", true),
 			},
 		}
 
@@ -46,14 +46,14 @@ func TestStringMarshalJSON(t *testing.T) {
 			out  []byte
 		}{
 			{
-				name: "null",
-				in:   nullable.NewString("", false),
-				out:  []byte("null"),
+				"null",
+				nullable.NewString("", false),
+				[]byte("null"),
 			},
 			{
-				name: "not null",
-				in:   nullable.NewString("not null", true),
-				out:  []byte(`"not null"`),
+				"not null",
+				nullable.NewString("not null", true),
+				[]byte(`"not null"`),
 			},
 		}
 
@@ -78,14 +78,14 @@ func TestStringUnmarshalJSON(t *testing.T) {
 			out  nullable.String
 		}{
 			{
-				name: "null",
-				in:   []byte("null"),
-				out:  nullable.NewString("", false),
+				"null",
+				[]byte("null"),
+				nullable.NewString("", false),
 			},
 			{
-				name: "not null",
-				in:   []byte(`"not null"`),
-				out:  nullable.NewString("not null", true),
+				"not null",
+				[]byte(`"not null"`),
+				nullable.NewString("not null", true),
 			},
 		}
 
@@ -110,14 +110,14 @@ func TestStringMarshalYAML(t *testing.T) {
 			out  any
 		}{
 			{
-				name: "null",
-				in:   nullable.NewString("", false),
-				out:  []byte("null\n"),
+				"null",
+				nullable.NewString("", false),
+				[]byte("null\n"),
 			},
 			{
-				name: "not null",
-				in:   nullable.NewString("not null", true),
-				out:  []byte("not null\n"),
+				"not null",
+				nullable.NewString("not null", true),
+				[]byte("not null\n"),
 			},
 		}
 
@@ -142,14 +142,14 @@ func TestStringUnmarshalYAML(t *testing.T) {
 			out  nullable.String
 		}{
 			{
-				name: "null",
-				in:   []byte("null\n"),
-				out:  nullable.NewString("", false),
+				"null",
+				[]byte("null\n"),
+				nullable.NewString("", false),
 			},
 			{
-				name: "not null",
-				in:   []byte("not null\n"),
-				out:  nullable.NewString("not null", true),
+				"not null",
+				[]byte("not null\n"),
+				nullable.NewString("not null", true),
 			},
 		}
 

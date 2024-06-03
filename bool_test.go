@@ -18,14 +18,14 @@ func TestNewBoolFromPtr(t *testing.T) {
 			out  nullable.Bool
 		}{
 			{
-				name: "nil",
-				in:   nil,
-				out:  nullable.NewBool(false, false),
+				"nil",
+				nil,
+				nullable.NewBool(false, false),
 			},
 			{
-				name: "not nil",
-				in:   coreutil.Ptr(true),
-				out:  nullable.NewBool(true, true),
+				"not nil",
+				coreutil.Ptr(true),
+				nullable.NewBool(true, true),
 			},
 		}
 
@@ -45,14 +45,14 @@ func TestBoolMarshalJSON(t *testing.T) {
 			out  []byte
 		}{
 			{
-				name: "null",
-				in:   nullable.NewBool(false, false),
-				out:  []byte("null"),
+				"null",
+				nullable.NewBool(false, false),
+				[]byte("null"),
 			},
 			{
-				name: "not null",
-				in:   nullable.NewBool(true, true),
-				out:  []byte("true"),
+				"not null",
+				nullable.NewBool(true, true),
+				[]byte("true"),
 			},
 		}
 
@@ -77,14 +77,14 @@ func TestBoolUnmarshalJSON(t *testing.T) {
 			out  nullable.Bool
 		}{
 			{
-				name: "null",
-				in:   []byte("null"),
-				out:  nullable.NewBool(false, false),
+				"null",
+				[]byte("null"),
+				nullable.NewBool(false, false),
 			},
 			{
-				name: "not null",
-				in:   []byte("true"),
-				out:  nullable.NewBool(true, true),
+				"not null",
+				[]byte("true"),
+				nullable.NewBool(true, true),
 			},
 		}
 

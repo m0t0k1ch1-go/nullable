@@ -18,14 +18,14 @@ func TestNewInt64FromPtr(t *testing.T) {
 			out  nullable.Int64
 		}{
 			{
-				name: "nil",
-				in:   nil,
-				out:  nullable.NewInt64(0, false),
+				"nil",
+				nil,
+				nullable.NewInt64(0, false),
 			},
 			{
-				name: "not nil",
-				in:   coreutil.Ptr(int64(1231006505)),
-				out:  nullable.NewInt64(1231006505, true),
+				"not nil",
+				coreutil.Ptr(int64(1231006505)),
+				nullable.NewInt64(1231006505, true),
 			},
 		}
 
@@ -45,14 +45,14 @@ func TestInt64MarshalJSON(t *testing.T) {
 			out  []byte
 		}{
 			{
-				name: "null",
-				in:   nullable.NewInt64(0, false),
-				out:  []byte("null"),
+				"null",
+				nullable.NewInt64(0, false),
+				[]byte("null"),
 			},
 			{
-				name: "not null",
-				in:   nullable.NewInt64(1231006505, true),
-				out:  []byte("1231006505"),
+				"not null",
+				nullable.NewInt64(1231006505, true),
+				[]byte("1231006505"),
 			},
 		}
 
@@ -77,14 +77,14 @@ func TestInt64UnmarshalJSON(t *testing.T) {
 			out  nullable.Int64
 		}{
 			{
-				name: "null",
-				in:   []byte("null"),
-				out:  nullable.NewInt64(0, false),
+				"null",
+				[]byte("null"),
+				nullable.NewInt64(0, false),
 			},
 			{
-				name: "not null",
-				in:   []byte("1231006505"),
-				out:  nullable.NewInt64(1231006505, true),
+				"not null",
+				[]byte("1231006505"),
+				nullable.NewInt64(1231006505, true),
 			},
 		}
 
