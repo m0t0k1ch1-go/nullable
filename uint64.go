@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"strconv"
 
-	"github.com/pkg/errors"
+	"github.com/samber/oops"
 )
 
 // Uint64 is a nullable uint64.
@@ -53,7 +53,7 @@ func (n *Uint64) Scan(src any) error {
 
 	case int64:
 		if v < 0 {
-			return errors.Errorf("src must not be negative")
+			return oops.Errorf("src must not be negative")
 		}
 
 		n.Uint64 = uint64(v)
@@ -64,13 +64,13 @@ func (n *Uint64) Scan(src any) error {
 	case []byte:
 		i, err := strconv.ParseUint(string(v), 10, 64)
 		if err != nil {
-			return errors.Wrapf(err, "failed to convert %s into type uint64", v)
+			return oops.Wrapf(err, "failed to convert %s into type uint64", v)
 		}
 
 		n.Uint64 = i
 
 	default:
-		return errors.Errorf("unexpected src type: %T", src)
+		return oops.Errorf("unexpected src type: %T", src)
 	}
 
 	n.Valid = true
