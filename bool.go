@@ -30,6 +30,15 @@ func NewBoolFromPtr(b *bool) Bool {
 	return NewBool(*b, true)
 }
 
+// Ptr returns a pointer to the bool.
+func (n Bool) Ptr() *bool {
+	if !n.Valid {
+		return nil
+	}
+
+	return &n.Bool
+}
+
 // MarshalJSON implements the json.Marshaler interface.
 func (n Bool) MarshalJSON() ([]byte, error) {
 	if !n.Valid {

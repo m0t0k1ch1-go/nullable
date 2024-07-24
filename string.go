@@ -30,6 +30,15 @@ func NewStringFromPtr(s *string) String {
 	return NewString(*s, true)
 }
 
+// Ptr returns a pointer to the string.
+func (n String) Ptr() *string {
+	if !n.Valid {
+		return nil
+	}
+
+	return &n.String
+}
+
 // MarshalJSON implements the json.Marshaler interface.
 func (n String) MarshalJSON() ([]byte, error) {
 	if !n.Valid {

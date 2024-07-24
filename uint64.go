@@ -32,6 +32,15 @@ func NewUint64FromPtr(i *uint64) Uint64 {
 	return NewUint64(*i, true)
 }
 
+// Ptr returns a pointer to the uint64.
+func (n Uint64) Ptr() *uint64 {
+	if !n.Valid {
+		return nil
+	}
+
+	return &n.Uint64
+}
+
 // Value implements the driver.Valuer interface.
 func (n Uint64) Value() (driver.Value, error) {
 	if !n.Valid {

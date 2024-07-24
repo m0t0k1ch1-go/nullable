@@ -37,6 +37,33 @@ func TestNewBoolFromPtr(t *testing.T) {
 	})
 }
 
+func TestBoolPtr(t *testing.T) {
+	t.Run("success", func(t *testing.T) {
+		tcs := []struct {
+			name string
+			in   nullable.Bool
+			out  *bool
+		}{
+			{
+				"nil",
+				nullable.NewBool(false, false),
+				nil,
+			},
+			{
+				"not nil",
+				nullable.NewBool(true, true),
+				coreutil.Ptr(true),
+			},
+		}
+
+		for _, tc := range tcs {
+			t.Run(tc.name, func(t *testing.T) {
+				testutil.Equal(t, tc.out, tc.in.Ptr())
+			})
+		}
+	})
+}
+
 func TestBoolMarshalJSON(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		tcs := []struct {
