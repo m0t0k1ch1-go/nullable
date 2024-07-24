@@ -38,6 +38,33 @@ func TestNewStringFromPtr(t *testing.T) {
 	})
 }
 
+func TestStringPtr(t *testing.T) {
+	t.Run("success", func(t *testing.T) {
+		tcs := []struct {
+			name string
+			in   nullable.String
+			out  *string
+		}{
+			{
+				"nil",
+				nullable.NewString("", false),
+				nil,
+			},
+			{
+				"not nil",
+				nullable.NewString("not nil", true),
+				coreutil.Ptr("not nil"),
+			},
+		}
+
+		for _, tc := range tcs {
+			t.Run(tc.name, func(t *testing.T) {
+				testutil.Equal(t, tc.out, tc.in.Ptr())
+			})
+		}
+	})
+}
+
 func TestStringMarshalJSON(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		tcs := []struct {

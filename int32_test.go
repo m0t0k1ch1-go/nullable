@@ -37,6 +37,33 @@ func TestNewInt32FromPtr(t *testing.T) {
 	})
 }
 
+func TestInt32Ptr(t *testing.T) {
+	t.Run("success", func(t *testing.T) {
+		tcs := []struct {
+			name string
+			in   nullable.Int32
+			out  *int32
+		}{
+			{
+				"nil",
+				nullable.NewInt32(0, false),
+				nil,
+			},
+			{
+				"not nil",
+				nullable.NewInt32(1231006505, true),
+				coreutil.Ptr(int32(1231006505)),
+			},
+		}
+
+		for _, tc := range tcs {
+			t.Run(tc.name, func(t *testing.T) {
+				testutil.Equal(t, tc.out, tc.in.Ptr())
+			})
+		}
+	})
+}
+
 func TestInt32MarshalJSON(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		tcs := []struct {

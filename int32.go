@@ -30,6 +30,15 @@ func NewInt32FromPtr(i *int32) Int32 {
 	return NewInt32(*i, true)
 }
 
+// Ptr returns a pointer to the int32.
+func (n Int32) Ptr() *int32 {
+	if !n.Valid {
+		return nil
+	}
+
+	return &n.Int32
+}
+
 // MarshalJSON implements the json.Marshaler interface.
 func (n Int32) MarshalJSON() ([]byte, error) {
 	if !n.Valid {

@@ -6,9 +6,64 @@ import (
 
 	"database/sql/driver"
 
+	"github.com/m0t0k1ch1-go/coreutil"
 	"github.com/m0t0k1ch1-go/nullable"
 	"github.com/m0t0k1ch1-go/nullable/internal/testutil"
 )
+
+func TestNewUint64FromPtr(t *testing.T) {
+	t.Run("success", func(t *testing.T) {
+		tcs := []struct {
+			name string
+			in   *uint64
+			out  nullable.Uint64
+		}{
+			{
+				"nil",
+				nil,
+				nullable.NewUint64(0, false),
+			},
+			{
+				"not nil",
+				coreutil.Ptr(uint64(1231006505)),
+				nullable.NewUint64(1231006505, true),
+			},
+		}
+
+		for _, tc := range tcs {
+			t.Run(tc.name, func(t *testing.T) {
+				testutil.Equal(t, tc.out, nullable.NewUint64FromPtr(tc.in))
+			})
+		}
+	})
+}
+
+func TestUint64Ptr(t *testing.T) {
+	t.Run("success", func(t *testing.T) {
+		tcs := []struct {
+			name string
+			in   nullable.Uint64
+			out  *uint64
+		}{
+			{
+				"nil",
+				nullable.NewUint64(0, false),
+				nil,
+			},
+			{
+				"not nil",
+				nullable.NewUint64(1231006505, true),
+				coreutil.Ptr(uint64(1231006505)),
+			},
+		}
+
+		for _, tc := range tcs {
+			t.Run(tc.name, func(t *testing.T) {
+				testutil.Equal(t, tc.out, tc.in.Ptr())
+			})
+		}
+	})
+}
 
 func TestUint64Value(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
