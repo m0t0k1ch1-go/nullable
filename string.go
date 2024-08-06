@@ -21,8 +21,8 @@ func NewString(s string, valid bool) String {
 	}
 }
 
-// NewStringFromPtr returns a new String from a pointer.
-func NewStringFromPtr(s *string) String {
+// NewStringFromStringPtr returns a new String from a string pointer.
+func NewStringFromStringPtr(s *string) String {
 	if s == nil {
 		return NewString("", false)
 	}
@@ -30,8 +30,8 @@ func NewStringFromPtr(s *string) String {
 	return NewString(*s, true)
 }
 
-// Ptr returns a pointer to the string.
-func (n String) Ptr() *string {
+// StringPtr returns the string pointer.
+func (n String) StringPtr() *string {
 	if !n.Valid {
 		return nil
 	}

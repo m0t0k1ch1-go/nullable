@@ -21,8 +21,8 @@ func NewInt32(i int32, valid bool) Int32 {
 	}
 }
 
-// NewInt32FromPtr returns a new Int32 from a pointer.
-func NewInt32FromPtr(i *int32) Int32 {
+// NewInt32FromInt32Ptr returns a new Int32 from a int32 pointer.
+func NewInt32FromInt32Ptr(i *int32) Int32 {
 	if i == nil {
 		return NewInt32(0, false)
 	}
@@ -30,8 +30,8 @@ func NewInt32FromPtr(i *int32) Int32 {
 	return NewInt32(*i, true)
 }
 
-// Ptr returns a pointer to the int32.
-func (n Int32) Ptr() *int32 {
+// Int32Ptr returns the int32 pointer.
+func (n Int32) Int32Ptr() *int32 {
 	if !n.Valid {
 		return nil
 	}

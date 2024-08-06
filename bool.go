@@ -21,8 +21,8 @@ func NewBool(b bool, valid bool) Bool {
 	}
 }
 
-// NewBoolFromPtr returns a new Bool from a pointer.
-func NewBoolFromPtr(b *bool) Bool {
+// NewBoolFromBoolPtr returns a new Bool from a bool pointer.
+func NewBoolFromBoolPtr(b *bool) Bool {
 	if b == nil {
 		return NewBool(false, false)
 	}
@@ -30,8 +30,8 @@ func NewBoolFromPtr(b *bool) Bool {
 	return NewBool(*b, true)
 }
 
-// Ptr returns a pointer to the bool.
-func (n Bool) Ptr() *bool {
+// BoolPtr returns the bool pointer.
+func (n Bool) BoolPtr() *bool {
 	if !n.Valid {
 		return nil
 	}

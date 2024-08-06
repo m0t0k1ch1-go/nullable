@@ -11,7 +11,7 @@ import (
 	"github.com/m0t0k1ch1-go/nullable/v2/internal/testutil"
 )
 
-func TestNewStringFromPtr(t *testing.T) {
+func TestNewStringFromStringPtr(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		tcs := []struct {
 			name string
@@ -32,13 +32,13 @@ func TestNewStringFromPtr(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				testutil.Equal(t, tc.out, nullable.NewStringFromPtr(tc.in))
+				testutil.Equal(t, tc.out, nullable.NewStringFromStringPtr(tc.in))
 			})
 		}
 	})
 }
 
-func TestStringPtr(t *testing.T) {
+func TestStringStringPtr(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		tcs := []struct {
 			name string
@@ -59,7 +59,7 @@ func TestStringPtr(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				testutil.Equal(t, tc.out, tc.in.Ptr())
+				testutil.Equal(t, tc.out, tc.in.StringPtr())
 			})
 		}
 	})

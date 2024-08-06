@@ -10,7 +10,7 @@ import (
 	"github.com/m0t0k1ch1-go/nullable/v2/internal/testutil"
 )
 
-func TestNewBoolFromPtr(t *testing.T) {
+func TestNewBoolFromBoolPtr(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		tcs := []struct {
 			name string
@@ -31,13 +31,13 @@ func TestNewBoolFromPtr(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				testutil.Equal(t, tc.out, nullable.NewBoolFromPtr(tc.in))
+				testutil.Equal(t, tc.out, nullable.NewBoolFromBoolPtr(tc.in))
 			})
 		}
 	})
 }
 
-func TestBoolPtr(t *testing.T) {
+func TestBoolBoolPtr(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		tcs := []struct {
 			name string
@@ -58,7 +58,7 @@ func TestBoolPtr(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				testutil.Equal(t, tc.out, tc.in.Ptr())
+				testutil.Equal(t, tc.out, tc.in.BoolPtr())
 			})
 		}
 	})

@@ -10,7 +10,7 @@ import (
 	"github.com/m0t0k1ch1-go/nullable/v2/internal/testutil"
 )
 
-func TestNewInt32FromPtr(t *testing.T) {
+func TestNewInt32FromInt32Ptr(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		tcs := []struct {
 			name string
@@ -31,13 +31,13 @@ func TestNewInt32FromPtr(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				testutil.Equal(t, tc.out, nullable.NewInt32FromPtr(tc.in))
+				testutil.Equal(t, tc.out, nullable.NewInt32FromInt32Ptr(tc.in))
 			})
 		}
 	})
 }
 
-func TestInt32Ptr(t *testing.T) {
+func TestInt32Int32Ptr(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		tcs := []struct {
 			name string
@@ -58,7 +58,7 @@ func TestInt32Ptr(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				testutil.Equal(t, tc.out, tc.in.Ptr())
+				testutil.Equal(t, tc.out, tc.in.Int32Ptr())
 			})
 		}
 	})
