@@ -9,8 +9,8 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/m0t0k1ch1-go/timeutil/v4"
 
-	"github.com/m0t0k1ch1-go/nullable"
-	"github.com/m0t0k1ch1-go/nullable/internal/testutil"
+	"github.com/m0t0k1ch1-go/nullable/v2"
+	"github.com/m0t0k1ch1-go/nullable/v2/internal/testutil"
 )
 
 func TestTimestampNullableString(t *testing.T) {
