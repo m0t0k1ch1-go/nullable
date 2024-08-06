@@ -10,15 +10,15 @@ import (
 
 // EthAddress is a nullable github.com/ethereum/go-ethereum/common.Address.
 type EthAddress struct {
-	Address ethcommon.Address
-	Valid   bool
+	EthAddress ethcommon.Address
+	Valid      bool
 }
 
 // NewEthAddress returns a new EthAddress.
 func NewEthAddress(address ethcommon.Address, valid bool) EthAddress {
 	return EthAddress{
-		Address: address,
-		Valid:   valid,
+		EthAddress: address,
+		Valid:      valid,
 	}
 }
 
@@ -28,7 +28,7 @@ func (n EthAddress) NullableString() String {
 		return NewString("", false)
 	}
 
-	return NewString(n.Address.String(), true)
+	return NewString(n.EthAddress.String(), true)
 }
 
 // Value implements the driver.Valuer interface.
@@ -37,18 +37,18 @@ func (n EthAddress) Value() (driver.Value, error) {
 		return nil, nil
 	}
 
-	return n.Address.Value()
+	return n.EthAddress.Value()
 }
 
 // Scan implements the sql.Scanner interface.
 func (n *EthAddress) Scan(src any) error {
 	if src == nil {
-		n.Address, n.Valid = ethcommon.Address{}, false
+		n.EthAddress, n.Valid = ethcommon.Address{}, false
 
 		return nil
 	}
 
-	if err := n.Address.Scan(src); err != nil {
+	if err := n.EthAddress.Scan(src); err != nil {
 		return err
 	}
 
@@ -63,18 +63,18 @@ func (n EthAddress) MarshalJSON() ([]byte, error) {
 		return []byte("null"), nil
 	}
 
-	return json.Marshal(n.Address.String())
+	return json.Marshal(n.EthAddress.String())
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
 func (n *EthAddress) UnmarshalJSON(b []byte) error {
 	if bytes.Equal(b, []byte("null")) {
-		n.Address, n.Valid = ethcommon.Address{}, false
+		n.EthAddress, n.Valid = ethcommon.Address{}, false
 
 		return nil
 	}
 
-	if err := json.Unmarshal(b, &n.Address); err != nil {
+	if err := json.Unmarshal(b, &n.EthAddress); err != nil {
 		return err
 	}
 
