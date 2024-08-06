@@ -23,8 +23,8 @@ func NewUint64(i uint64, valid bool) Uint64 {
 	}
 }
 
-// NewUint64FromPtr returns a new Uint64 from a pointer.
-func NewUint64FromPtr(i *uint64) Uint64 {
+// NewUint64FromUint64Ptr returns a new Uint64 from a uint64 pointer.
+func NewUint64FromUint64Ptr(i *uint64) Uint64 {
 	if i == nil {
 		return NewUint64(0, false)
 	}
@@ -32,8 +32,8 @@ func NewUint64FromPtr(i *uint64) Uint64 {
 	return NewUint64(*i, true)
 }
 
-// Ptr returns a pointer to the uint64.
-func (n Uint64) Ptr() *uint64 {
+// Uint64Ptr returns the uint64 pointer.
+func (n Uint64) Uint64Ptr() *uint64 {
 	if !n.Valid {
 		return nil
 	}

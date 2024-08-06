@@ -11,7 +11,7 @@ import (
 	"github.com/m0t0k1ch1-go/nullable/v2/internal/testutil"
 )
 
-func TestNewUint64FromPtr(t *testing.T) {
+func TestNewUint64FromUint64Ptr(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		tcs := []struct {
 			name string
@@ -32,13 +32,13 @@ func TestNewUint64FromPtr(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				testutil.Equal(t, tc.out, nullable.NewUint64FromPtr(tc.in))
+				testutil.Equal(t, tc.out, nullable.NewUint64FromUint64Ptr(tc.in))
 			})
 		}
 	})
 }
 
-func TestUint64Ptr(t *testing.T) {
+func TestUint64Uint64Ptr(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		tcs := []struct {
 			name string
@@ -59,7 +59,7 @@ func TestUint64Ptr(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				testutil.Equal(t, tc.out, tc.in.Ptr())
+				testutil.Equal(t, tc.out, tc.in.Uint64Ptr())
 			})
 		}
 	})
