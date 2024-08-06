@@ -7,8 +7,8 @@ import (
 	"database/sql/driver"
 
 	"github.com/m0t0k1ch1-go/coreutil"
-	"github.com/m0t0k1ch1-go/nullable"
-	"github.com/m0t0k1ch1-go/nullable/internal/testutil"
+	"github.com/m0t0k1ch1-go/nullable/v2"
+	"github.com/m0t0k1ch1-go/nullable/v2/internal/testutil"
 )
 
 func TestNewUint64FromPtr(t *testing.T) {

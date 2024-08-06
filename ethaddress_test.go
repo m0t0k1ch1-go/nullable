@@ -8,8 +8,8 @@ import (
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	ethhexutil "github.com/ethereum/go-ethereum/common/hexutil"
 
-	"github.com/m0t0k1ch1-go/nullable"
-	"github.com/m0t0k1ch1-go/nullable/internal/testutil"
+	"github.com/m0t0k1ch1-go/nullable/v2"
+	"github.com/m0t0k1ch1-go/nullable/v2/internal/testutil"
 )
 
 func TestEthAddressNullableString(t *testing.T) {
