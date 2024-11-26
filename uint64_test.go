@@ -1,14 +1,14 @@
 package nullable_test
 
 import (
+	"database/sql/driver"
 	"encoding/json"
 	"testing"
 
-	"database/sql/driver"
-
 	"github.com/m0t0k1ch1-go/coreutil"
-	"github.com/m0t0k1ch1-go/nullable/v2"
 	"github.com/stretchr/testify/require"
+
+	"github.com/m0t0k1ch1-go/nullable/v2"
 )
 
 func TestNewUint64FromUint64Ptr(t *testing.T) {
