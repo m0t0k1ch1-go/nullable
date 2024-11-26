@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/m0t0k1ch1-go/coreutil"
+	"github.com/stretchr/testify/require"
 
 	"github.com/m0t0k1ch1-go/nullable/v2"
-	"github.com/m0t0k1ch1-go/nullable/v2/internal/testutil"
 )
 
 func TestNewBoolFromBoolPtr(t *testing.T) {
@@ -31,7 +31,7 @@ func TestNewBoolFromBoolPtr(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				testutil.Equal(t, tc.out, nullable.NewBoolFromBoolPtr(tc.in))
+				require.Equal(t, tc.out, nullable.NewBoolFromBoolPtr(tc.in))
 			})
 		}
 	})
@@ -58,7 +58,7 @@ func TestBoolBoolPtr(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				testutil.Equal(t, tc.out, tc.in.BoolPtr())
+				require.Equal(t, tc.out, tc.in.BoolPtr())
 			})
 		}
 	})
@@ -90,7 +90,7 @@ func TestBoolMarshalJSON(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				testutil.Equal(t, tc.out, b)
+				require.Equal(t, tc.out, b)
 			})
 		}
 	})
@@ -122,7 +122,7 @@ func TestBoolUnmarshalJSON(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				testutil.Equal(t, tc.out, n)
+				require.Equal(t, tc.out, n)
 			})
 		}
 	})

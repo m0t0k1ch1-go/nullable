@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/m0t0k1ch1-go/coreutil"
+	"github.com/stretchr/testify/require"
 
 	"github.com/m0t0k1ch1-go/nullable/v2"
-	"github.com/m0t0k1ch1-go/nullable/v2/internal/testutil"
 )
 
 func TestNewInt64FromInt64Ptr(t *testing.T) {
@@ -31,7 +31,7 @@ func TestNewInt64FromInt64Ptr(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				testutil.Equal(t, tc.out, nullable.NewInt64FromInt64Ptr(tc.in))
+				require.Equal(t, tc.out, nullable.NewInt64FromInt64Ptr(tc.in))
 			})
 		}
 	})
@@ -58,7 +58,7 @@ func TestInt64Int64Ptr(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				testutil.Equal(t, tc.out, tc.in.Int64Ptr())
+				require.Equal(t, tc.out, tc.in.Int64Ptr())
 			})
 		}
 	})
@@ -90,7 +90,7 @@ func TestInt64MarshalJSON(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				testutil.Equal(t, tc.out, b)
+				require.Equal(t, tc.out, b)
 			})
 		}
 	})
@@ -122,7 +122,7 @@ func TestInt64UnmarshalJSON(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				testutil.Equal(t, tc.out, n)
+				require.Equal(t, tc.out, n)
 			})
 		}
 	})

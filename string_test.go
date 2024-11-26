@@ -5,10 +5,10 @@ import (
 	"testing"
 
 	"github.com/m0t0k1ch1-go/coreutil"
+	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v2"
 
 	"github.com/m0t0k1ch1-go/nullable/v2"
-	"github.com/m0t0k1ch1-go/nullable/v2/internal/testutil"
 )
 
 func TestNewStringFromStringPtr(t *testing.T) {
@@ -32,7 +32,7 @@ func TestNewStringFromStringPtr(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				testutil.Equal(t, tc.out, nullable.NewStringFromStringPtr(tc.in))
+				require.Equal(t, tc.out, nullable.NewStringFromStringPtr(tc.in))
 			})
 		}
 	})
@@ -59,7 +59,7 @@ func TestStringStringPtr(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				testutil.Equal(t, tc.out, tc.in.StringPtr())
+				require.Equal(t, tc.out, tc.in.StringPtr())
 			})
 		}
 	})
@@ -91,7 +91,7 @@ func TestStringMarshalJSON(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				testutil.Equal(t, tc.out, b)
+				require.Equal(t, tc.out, b)
 			})
 		}
 	})
@@ -123,7 +123,7 @@ func TestStringUnmarshalJSON(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				testutil.Equal(t, tc.out, n)
+				require.Equal(t, tc.out, n)
 			})
 		}
 	})
@@ -155,7 +155,7 @@ func TestStringMarshalYAML(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				testutil.Equal(t, tc.out, b)
+				require.Equal(t, tc.out, b)
 			})
 		}
 	})
@@ -187,7 +187,7 @@ func TestStringUnmarshalYAML(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				testutil.Equal(t, tc.out, n)
+				require.Equal(t, tc.out, n)
 			})
 		}
 	})
