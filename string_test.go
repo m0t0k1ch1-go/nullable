@@ -87,9 +87,7 @@ func TestStringMarshalJSON(t *testing.T) {
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				b, err := json.Marshal(tc.in)
-				if err != nil {
-					t.Fatal(err)
-				}
+				require.Nil(t, err)
 
 				require.Equal(t, tc.out, b)
 			})
@@ -119,9 +117,7 @@ func TestStringUnmarshalJSON(t *testing.T) {
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				var n nullable.String
-				if err := json.Unmarshal(tc.in, &n); err != nil {
-					t.Fatal(err)
-				}
+				require.Nil(t, json.Unmarshal(tc.in, &n))
 
 				require.Equal(t, tc.out, n)
 			})
@@ -151,9 +147,7 @@ func TestStringMarshalYAML(t *testing.T) {
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				b, err := yaml.Marshal(tc.in)
-				if err != nil {
-					t.Fatal(err)
-				}
+				require.Nil(t, err)
 
 				require.Equal(t, tc.out, b)
 			})
@@ -183,9 +177,7 @@ func TestStringUnmarshalYAML(t *testing.T) {
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				var n nullable.String
-				if err := yaml.Unmarshal(tc.in, &n); err != nil {
-					t.Fatal(err)
-				}
+				require.Nil(t, yaml.Unmarshal(tc.in, &n))
 
 				require.Equal(t, tc.out, n)
 			})

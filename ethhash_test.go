@@ -61,9 +61,7 @@ func TestEthHashValue(t *testing.T) {
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				v, err := tc.in.Value()
-				if err != nil {
-					t.Fatal(err)
-				}
+				require.Nil(t, err)
 
 				require.Equal(t, tc.out, v)
 			})
@@ -93,9 +91,7 @@ func TestEthHashScan(t *testing.T) {
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				var n nullable.EthHash
-				if err := n.Scan(tc.in); err != nil {
-					t.Fatal(err)
-				}
+				require.Nil(t, n.Scan(tc.in))
 
 				require.Equal(t, tc.out, n)
 			})
@@ -125,9 +121,7 @@ func TestEthHashMarshalJSON(t *testing.T) {
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				b, err := json.Marshal(tc.in)
-				if err != nil {
-					t.Fatal(err)
-				}
+				require.Nil(t, err)
 
 				require.Equal(t, tc.out, b)
 			})
@@ -157,9 +151,7 @@ func TestEthHashUnmarshalJSON(t *testing.T) {
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				var n nullable.EthHash
-				if err := json.Unmarshal(tc.in, &n); err != nil {
-					t.Fatal(err)
-				}
+				require.Nil(t, json.Unmarshal(tc.in, &n))
 
 				require.Equal(t, tc.out, n)
 			})
