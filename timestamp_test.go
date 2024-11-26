@@ -6,11 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/google/go-cmp/cmp"
 	"github.com/m0t0k1ch1-go/timeutil/v4"
+	"github.com/stretchr/testify/require"
 
 	"github.com/m0t0k1ch1-go/nullable/v2"
-	"github.com/m0t0k1ch1-go/nullable/v2/internal/testutil"
 )
 
 func TestTimestampNullableString(t *testing.T) {
@@ -34,7 +33,7 @@ func TestTimestampNullableString(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				testutil.Equal(t, tc.out, tc.in.NullableString())
+				require.Equal(t, tc.out, tc.in.NullableString())
 			})
 		}
 	})
@@ -66,7 +65,7 @@ func TestTimestampValue(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				testutil.Equal(t, tc.out, v)
+				require.Equal(t, tc.out, v)
 			})
 		}
 	})
@@ -98,7 +97,7 @@ func TestTimestampScan(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				testutil.Equal(t, tc.out, n, cmp.AllowUnexported(timeutil.Timestamp{}))
+				require.Equal(t, tc.out, n)
 			})
 		}
 	})
@@ -130,7 +129,7 @@ func TestTimestampMarshalJSON(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				testutil.Equal(t, tc.out, b)
+				require.Equal(t, tc.out, b)
 			})
 		}
 	})
@@ -162,7 +161,7 @@ func TestTimestampUnmarshalJSON(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				testutil.Equal(t, tc.out, n, cmp.AllowUnexported(timeutil.Timestamp{}))
+				require.Equal(t, tc.out, n)
 			})
 		}
 	})

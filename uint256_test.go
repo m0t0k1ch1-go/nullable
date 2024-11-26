@@ -8,9 +8,9 @@ import (
 
 	ethmath "github.com/ethereum/go-ethereum/common/math"
 	"github.com/m0t0k1ch1-go/bigutil/v2"
+	"github.com/stretchr/testify/require"
 
 	"github.com/m0t0k1ch1-go/nullable/v2"
-	"github.com/m0t0k1ch1-go/nullable/v2/internal/testutil"
 )
 
 func TestUint256NullableString(t *testing.T) {
@@ -39,7 +39,7 @@ func TestUint256NullableString(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				testutil.Equal(t, tc.out, tc.in.NullableString())
+				require.Equal(t, tc.out, tc.in.NullableString())
 			})
 		}
 	})
@@ -76,7 +76,7 @@ func TestUint256Value(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				testutil.Equal(t, tc.out, v)
+				require.Equal(t, tc.out, v)
 			})
 		}
 	})
@@ -113,8 +113,8 @@ func TestUint256Scan(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				testutil.Equal(t, tc.out.Valid, n.Valid)
-				testutil.Equal(t, n.Uint256.BigInt().Cmp(tc.out.Uint256.BigInt()), 0)
+				require.Equal(t, tc.out.Valid, n.Valid)
+				require.Equal(t, n.Uint256.BigInt().Cmp(tc.out.Uint256.BigInt()), 0)
 			})
 		}
 	})
@@ -151,7 +151,7 @@ func TestUint256MarshalJSON(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				testutil.Equal(t, tc.out, b)
+				require.Equal(t, tc.out, b)
 			})
 		}
 	})
@@ -208,8 +208,8 @@ func TestUint256UnmarshalJSON(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				testutil.Equal(t, tc.out.Valid, n.Valid)
-				testutil.Equal(t, n.Uint256.BigInt().Cmp(tc.out.Uint256.BigInt()), 0)
+				require.Equal(t, tc.out.Valid, n.Valid)
+				require.Equal(t, n.Uint256.BigInt().Cmp(tc.out.Uint256.BigInt()), 0)
 			})
 		}
 	})

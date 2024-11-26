@@ -7,9 +7,9 @@ import (
 
 	ethcommon "github.com/ethereum/go-ethereum/common"
 	ethhexutil "github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/stretchr/testify/require"
 
 	"github.com/m0t0k1ch1-go/nullable/v2"
-	"github.com/m0t0k1ch1-go/nullable/v2/internal/testutil"
 )
 
 func TestEthAddressNullableString(t *testing.T) {
@@ -33,7 +33,7 @@ func TestEthAddressNullableString(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				testutil.Equal(t, tc.out, tc.in.NullableString())
+				require.Equal(t, tc.out, tc.in.NullableString())
 			})
 		}
 	})
@@ -65,7 +65,7 @@ func TestEthAddressValue(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				testutil.Equal(t, tc.out, v)
+				require.Equal(t, tc.out, v)
 			})
 		}
 	})
@@ -97,7 +97,7 @@ func TestEthAddressScan(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				testutil.Equal(t, tc.out, n)
+				require.Equal(t, tc.out, n)
 			})
 		}
 	})
@@ -129,7 +129,7 @@ func TestEthAddressMarshalJSON(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				testutil.Equal(t, tc.out, b)
+				require.Equal(t, tc.out, b)
 			})
 		}
 	})
@@ -161,7 +161,7 @@ func TestEthAddressUnmarshalJSON(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				testutil.Equal(t, tc.out, n)
+				require.Equal(t, tc.out, n)
 			})
 		}
 	})

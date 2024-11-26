@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/m0t0k1ch1-go/coreutil"
+	"github.com/stretchr/testify/require"
 
 	"github.com/m0t0k1ch1-go/nullable/v2"
-	"github.com/m0t0k1ch1-go/nullable/v2/internal/testutil"
 )
 
 func TestNewInt32FromInt32Ptr(t *testing.T) {
@@ -31,7 +31,7 @@ func TestNewInt32FromInt32Ptr(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				testutil.Equal(t, tc.out, nullable.NewInt32FromInt32Ptr(tc.in))
+				require.Equal(t, tc.out, nullable.NewInt32FromInt32Ptr(tc.in))
 			})
 		}
 	})
@@ -58,7 +58,7 @@ func TestInt32Int32Ptr(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				testutil.Equal(t, tc.out, tc.in.Int32Ptr())
+				require.Equal(t, tc.out, tc.in.Int32Ptr())
 			})
 		}
 	})
@@ -90,7 +90,7 @@ func TestInt32MarshalJSON(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				testutil.Equal(t, tc.out, b)
+				require.Equal(t, tc.out, b)
 			})
 		}
 	})
@@ -122,7 +122,7 @@ func TestInt32UnmarshalJSON(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				testutil.Equal(t, tc.out, n)
+				require.Equal(t, tc.out, n)
 			})
 		}
 	})

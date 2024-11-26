@@ -8,7 +8,7 @@ import (
 
 	"github.com/m0t0k1ch1-go/coreutil"
 	"github.com/m0t0k1ch1-go/nullable/v2"
-	"github.com/m0t0k1ch1-go/nullable/v2/internal/testutil"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewUint64FromUint64Ptr(t *testing.T) {
@@ -32,7 +32,7 @@ func TestNewUint64FromUint64Ptr(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				testutil.Equal(t, tc.out, nullable.NewUint64FromUint64Ptr(tc.in))
+				require.Equal(t, tc.out, nullable.NewUint64FromUint64Ptr(tc.in))
 			})
 		}
 	})
@@ -59,7 +59,7 @@ func TestUint64Uint64Ptr(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				testutil.Equal(t, tc.out, tc.in.Uint64Ptr())
+				require.Equal(t, tc.out, tc.in.Uint64Ptr())
 			})
 		}
 	})
@@ -91,7 +91,7 @@ func TestUint64Value(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				testutil.Equal(t, tc.out, v)
+				require.Equal(t, tc.out, v)
 			})
 		}
 	})
@@ -133,7 +133,7 @@ func TestUint64Scan(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				testutil.Equal(t, tc.out, n)
+				require.Equal(t, tc.out, n)
 			})
 		}
 	})
@@ -165,7 +165,7 @@ func TestUint64MarshalJSON(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				testutil.Equal(t, tc.out, b)
+				require.Equal(t, tc.out, b)
 			})
 		}
 	})
@@ -197,7 +197,7 @@ func TestUint64UnmarshalJSON(t *testing.T) {
 					t.Fatal(err)
 				}
 
-				testutil.Equal(t, tc.out, n)
+				require.Equal(t, tc.out, n)
 			})
 		}
 	})
