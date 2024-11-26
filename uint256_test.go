@@ -114,7 +114,7 @@ func TestUint256Scan(t *testing.T) {
 				}
 
 				require.Equal(t, tc.out.Valid, n.Valid)
-				require.Equal(t, n.Uint256.BigInt().Cmp(tc.out.Uint256.BigInt()), 0)
+				require.Zero(t, n.Uint256.BigInt().Cmp(tc.out.Uint256.BigInt()))
 			})
 		}
 	})
@@ -209,7 +209,7 @@ func TestUint256UnmarshalJSON(t *testing.T) {
 				}
 
 				require.Equal(t, tc.out.Valid, n.Valid)
-				require.Equal(t, n.Uint256.BigInt().Cmp(tc.out.Uint256.BigInt()), 0)
+				require.Zero(t, n.Uint256.BigInt().Cmp(tc.out.Uint256.BigInt()))
 			})
 		}
 	})
