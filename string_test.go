@@ -32,7 +32,9 @@ func TestNewStringFromStringPtr(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				require.Equal(t, tc.out, nullable.NewStringFromStringPtr(tc.in))
+				n := nullable.NewStringFromStringPtr(tc.in)
+
+				require.Equal(t, tc.out, n)
 			})
 		}
 	})
@@ -59,7 +61,9 @@ func TestStringStringPtr(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				require.Equal(t, tc.out, tc.in.StringPtr())
+				p := tc.in.StringPtr()
+
+				require.Equal(t, tc.out, p)
 			})
 		}
 	})
@@ -87,7 +91,7 @@ func TestStringMarshalJSON(t *testing.T) {
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				b, err := json.Marshal(tc.in)
-				require.Nil(t, err)
+				require.NoError(t, err)
 
 				require.Equal(t, tc.out, b)
 			})
@@ -117,7 +121,10 @@ func TestStringUnmarshalJSON(t *testing.T) {
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				var n nullable.String
-				require.Nil(t, json.Unmarshal(tc.in, &n))
+				{
+					err := json.Unmarshal(tc.in, &n)
+					require.NoError(t, err)
+				}
 
 				require.Equal(t, tc.out, n)
 			})
@@ -147,7 +154,7 @@ func TestStringMarshalYAML(t *testing.T) {
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				b, err := yaml.Marshal(tc.in)
-				require.Nil(t, err)
+				require.NoError(t, err)
 
 				require.Equal(t, tc.out, b)
 			})
@@ -177,7 +184,10 @@ func TestStringUnmarshalYAML(t *testing.T) {
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				var n nullable.String
-				require.Nil(t, yaml.Unmarshal(tc.in, &n))
+				{
+					err := yaml.Unmarshal(tc.in, &n)
+					require.NoError(t, err)
+				}
 
 				require.Equal(t, tc.out, n)
 			})
