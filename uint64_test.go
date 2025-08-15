@@ -32,7 +32,9 @@ func TestNewUint64FromUint64Ptr(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				require.Equal(t, tc.out, nullable.NewUint64FromUint64Ptr(tc.in))
+				n := nullable.NewUint64FromUint64Ptr(tc.in)
+
+				require.Equal(t, tc.out, n)
 			})
 		}
 	})
@@ -59,7 +61,9 @@ func TestUint64Uint64Ptr(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				require.Equal(t, tc.out, tc.in.Uint64Ptr())
+				p := tc.in.Uint64Ptr()
+
+				require.Equal(t, tc.out, p)
 			})
 		}
 	})
@@ -87,7 +91,7 @@ func TestUint64Value(t *testing.T) {
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				v, err := tc.in.Value()
-				require.Nil(t, err)
+				require.NoError(t, err)
 
 				require.Equal(t, tc.out, v)
 			})
@@ -96,6 +100,36 @@ func TestUint64Value(t *testing.T) {
 }
 
 func TestUint64Scan(t *testing.T) {
+	t.Run("failure", func(t *testing.T) {
+		tcs := []struct {
+			name string
+			in   any
+		}{
+			{
+				name: "float64",
+				in:   float64(0),
+			},
+			{
+				name: "negative int64",
+				in:   int64(-1),
+			},
+			{
+				name: "invalid bytes",
+				in:   []byte("invalid"),
+			},
+		}
+
+		for _, tc := range tcs {
+			t.Run(tc.name, func(t *testing.T) {
+				var n nullable.Uint64
+				{
+					err := n.Scan(tc.in)
+					require.Error(t, err)
+				}
+			})
+		}
+	})
+
 	t.Run("success", func(t *testing.T) {
 		tcs := []struct {
 			name string
@@ -127,7 +161,10 @@ func TestUint64Scan(t *testing.T) {
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				var n nullable.Uint64
-				require.Nil(t, n.Scan(tc.in))
+				{
+					err := n.Scan(tc.in)
+					require.NoError(t, err)
+				}
 
 				require.Equal(t, tc.out, n)
 			})
@@ -157,7 +194,7 @@ func TestUint64MarshalJSON(t *testing.T) {
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				b, err := json.Marshal(tc.in)
-				require.Nil(t, err)
+				require.NoError(t, err)
 
 				require.Equal(t, tc.out, b)
 			})
@@ -187,7 +224,10 @@ func TestUint64UnmarshalJSON(t *testing.T) {
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				var n nullable.Uint64
-				require.Nil(t, json.Unmarshal(tc.in, &n))
+				{
+					err := json.Unmarshal(tc.in, &n)
+					require.NoError(t, err)
+				}
 
 				require.Equal(t, tc.out, n)
 			})

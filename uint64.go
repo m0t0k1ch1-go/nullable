@@ -62,7 +62,7 @@ func (n *Uint64) Scan(src any) error {
 
 	case int64:
 		if v < 0 {
-			return oops.Errorf("src must not be negative")
+			return oops.New("src must not be negative")
 		}
 
 		n.Uint64 = uint64(v)
@@ -73,7 +73,7 @@ func (n *Uint64) Scan(src any) error {
 	case []byte:
 		i, err := strconv.ParseUint(string(v), 10, 64)
 		if err != nil {
-			return oops.Wrapf(err, "failed to convert %s into type uint64", v)
+			return oops.Wrapf(err, "failed to parse src as uint64")
 		}
 
 		n.Uint64 = i
@@ -93,7 +93,12 @@ func (n Uint64) MarshalJSON() ([]byte, error) {
 		return []byte("null"), nil
 	}
 
-	return json.Marshal(n.Uint64)
+	b, err := json.Marshal(n.Uint64)
+	if err != nil {
+		return nil, oops.Wrap(err)
+	}
+
+	return b, nil
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
@@ -105,7 +110,7 @@ func (n *Uint64) UnmarshalJSON(b []byte) error {
 	}
 
 	if err := json.Unmarshal(b, &n.Uint64); err != nil {
-		return err
+		return oops.Wrap(err)
 	}
 
 	n.Valid = true
