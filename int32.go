@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
+
+	"github.com/samber/oops"
 )
 
 // Int32 is a nullable int32.
@@ -45,7 +47,12 @@ func (n Int32) MarshalJSON() ([]byte, error) {
 		return []byte("null"), nil
 	}
 
-	return json.Marshal(n.Int32)
+	b, err := json.Marshal(n.Int32)
+	if err != nil {
+		return nil, oops.Wrap(err)
+	}
+
+	return b, nil
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
@@ -57,7 +64,7 @@ func (n *Int32) UnmarshalJSON(b []byte) error {
 	}
 
 	if err := json.Unmarshal(b, &n.Int32); err != nil {
-		return err
+		return oops.Wrap(err)
 	}
 
 	n.Valid = true

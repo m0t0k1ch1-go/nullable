@@ -31,7 +31,9 @@ func TestNewInt32FromInt32Ptr(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				require.Equal(t, tc.out, nullable.NewInt32FromInt32Ptr(tc.in))
+				n := nullable.NewInt32FromInt32Ptr(tc.in)
+
+				require.Equal(t, tc.out, n)
 			})
 		}
 	})
@@ -58,7 +60,9 @@ func TestInt32Int32Ptr(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				require.Equal(t, tc.out, tc.in.Int32Ptr())
+				p := tc.in.Int32Ptr()
+
+				require.Equal(t, tc.out, p)
 			})
 		}
 	})
@@ -86,7 +90,7 @@ func TestInt32MarshalJSON(t *testing.T) {
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				b, err := json.Marshal(tc.in)
-				require.Nil(t, err)
+				require.NoError(t, err)
 
 				require.Equal(t, tc.out, b)
 			})
@@ -116,7 +120,10 @@ func TestInt32UnmarshalJSON(t *testing.T) {
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				var n nullable.Int32
-				require.Nil(t, json.Unmarshal(tc.in, &n))
+				{
+					err := json.Unmarshal(tc.in, &n)
+					require.NoError(t, err)
+				}
 
 				require.Equal(t, tc.out, n)
 			})
