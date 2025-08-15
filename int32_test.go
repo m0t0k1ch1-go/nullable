@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/m0t0k1ch1-go/coreutil"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/require"
 
 	"github.com/m0t0k1ch1-go/nullable/v2"
@@ -24,7 +24,7 @@ func TestNewInt32FromInt32Ptr(t *testing.T) {
 			},
 			{
 				"not nil",
-				coreutil.Ptr(int32(1231006505)),
+				lo.ToPtr(int32(1231006505)),
 				nullable.NewInt32(1231006505, true),
 			},
 		}
@@ -52,7 +52,7 @@ func TestInt32Int32Ptr(t *testing.T) {
 			{
 				"not nil",
 				nullable.NewInt32(1231006505, true),
-				coreutil.Ptr(int32(1231006505)),
+				lo.ToPtr(int32(1231006505)),
 			},
 		}
 

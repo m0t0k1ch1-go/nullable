@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/m0t0k1ch1-go/coreutil"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v2"
 
@@ -25,7 +25,7 @@ func TestNewStringFromStringPtr(t *testing.T) {
 			},
 			{
 				"not nil",
-				coreutil.Ptr("not nil"),
+				lo.ToPtr("not nil"),
 				nullable.NewString("not nil", true),
 			},
 		}
@@ -53,7 +53,7 @@ func TestStringStringPtr(t *testing.T) {
 			{
 				"not nil",
 				nullable.NewString("not nil", true),
-				coreutil.Ptr("not nil"),
+				lo.ToPtr("not nil"),
 			},
 		}
 

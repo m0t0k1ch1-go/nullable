@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/m0t0k1ch1-go/coreutil"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/require"
 
 	"github.com/m0t0k1ch1-go/nullable/v2"
@@ -24,7 +24,7 @@ func TestNewBoolFromBoolPtr(t *testing.T) {
 			},
 			{
 				"not nil",
-				coreutil.Ptr(true),
+				lo.ToPtr(true),
 				nullable.NewBool(true, true),
 			},
 		}
@@ -52,7 +52,7 @@ func TestBoolBoolPtr(t *testing.T) {
 			{
 				"not nil",
 				nullable.NewBool(true, true),
-				coreutil.Ptr(true),
+				lo.ToPtr(true),
 			},
 		}
 

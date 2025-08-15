@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/m0t0k1ch1-go/coreutil"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/require"
 
 	"github.com/m0t0k1ch1-go/nullable/v2"
@@ -25,7 +25,7 @@ func TestNewUint64FromUint64Ptr(t *testing.T) {
 			},
 			{
 				"not nil",
-				coreutil.Ptr(uint64(1231006505)),
+				lo.ToPtr(uint64(1231006505)),
 				nullable.NewUint64(1231006505, true),
 			},
 		}
@@ -53,7 +53,7 @@ func TestUint64Uint64Ptr(t *testing.T) {
 			{
 				"not nil",
 				nullable.NewUint64(1231006505, true),
-				coreutil.Ptr(uint64(1231006505)),
+				lo.ToPtr(uint64(1231006505)),
 			},
 		}
 
