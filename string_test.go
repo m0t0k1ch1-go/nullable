@@ -137,7 +137,7 @@ func TestStringMarshalYAML(t *testing.T) {
 		tcs := []struct {
 			name string
 			in   nullable.String
-			out  any
+			out  []byte
 		}{
 			{
 				"null",
