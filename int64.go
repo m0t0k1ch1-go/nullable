@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
+
+	"github.com/samber/oops"
 )
 
 // Int64 is a nullable int64.
@@ -45,7 +47,12 @@ func (n Int64) MarshalJSON() ([]byte, error) {
 		return []byte("null"), nil
 	}
 
-	return json.Marshal(n.Int64)
+	b, err := json.Marshal(n.Int64)
+	if err != nil {
+		return nil, oops.Wrap(err)
+	}
+
+	return b, nil
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
@@ -57,7 +64,7 @@ func (n *Int64) UnmarshalJSON(b []byte) error {
 	}
 
 	if err := json.Unmarshal(b, &n.Int64); err != nil {
-		return err
+		return oops.Wrap(err)
 	}
 
 	n.Valid = true

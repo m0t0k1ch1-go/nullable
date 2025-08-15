@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
+
+	"github.com/samber/oops"
 )
 
 // String is a nullable string.
@@ -45,7 +47,12 @@ func (n String) MarshalJSON() ([]byte, error) {
 		return []byte("null"), nil
 	}
 
-	return json.Marshal(n.String)
+	b, err := json.Marshal(n.String)
+	if err != nil {
+		return nil, oops.Wrap(err)
+	}
+
+	return b, nil
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
@@ -57,7 +64,7 @@ func (n *String) UnmarshalJSON(b []byte) error {
 	}
 
 	if err := json.Unmarshal(b, &n.String); err != nil {
-		return err
+		return oops.Wrap(err)
 	}
 
 	n.Valid = true
@@ -77,7 +84,7 @@ func (n String) MarshalYAML() (any, error) {
 // UnmarshalYAML implements the yaml.Unmarshaler interface.
 func (n *String) UnmarshalYAML(unmarshal func(any) error) error {
 	if err := unmarshal(&n.String); err != nil {
-		return err
+		return oops.Wrap(err)
 	}
 
 	n.Valid = true

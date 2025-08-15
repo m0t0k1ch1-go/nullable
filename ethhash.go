@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 
 	ethcommon "github.com/ethereum/go-ethereum/common"
+	"github.com/samber/oops"
 )
 
 // EthHash is a nullable github.com/ethereum/go-ethereum/common.Hash.
@@ -37,7 +38,12 @@ func (n EthHash) Value() (driver.Value, error) {
 		return nil, nil
 	}
 
-	return n.EthHash.Value()
+	v, err := n.EthHash.Value()
+	if err != nil {
+		return nil, oops.Wrap(err)
+	}
+
+	return v, nil
 }
 
 // Scan implements the sql.Scanner interface.
@@ -49,7 +55,7 @@ func (n *EthHash) Scan(src any) error {
 	}
 
 	if err := n.EthHash.Scan(src); err != nil {
-		return err
+		return oops.Wrap(err)
 	}
 
 	n.Valid = true
@@ -63,7 +69,12 @@ func (n EthHash) MarshalJSON() ([]byte, error) {
 		return []byte("null"), nil
 	}
 
-	return json.Marshal(n.EthHash.String())
+	b, err := json.Marshal(n.EthHash.String())
+	if err != nil {
+		return nil, oops.Wrap(err)
+	}
+
+	return b, nil
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
@@ -75,7 +86,7 @@ func (n *EthHash) UnmarshalJSON(b []byte) error {
 	}
 
 	if err := json.Unmarshal(b, &n.EthHash); err != nil {
-		return err
+		return oops.Wrap(err)
 	}
 
 	n.Valid = true

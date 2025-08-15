@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 
 	"github.com/m0t0k1ch1-go/timeutil/v4"
+	"github.com/samber/oops"
 )
 
 // Timestamp is a nullable github.com/m0t0k1ch1-go/timeutil.Timestamp.
@@ -37,7 +38,12 @@ func (n Timestamp) Value() (driver.Value, error) {
 		return nil, nil
 	}
 
-	return n.Timestamp.Value()
+	v, err := n.Timestamp.Value()
+	if err != nil {
+		return nil, oops.Wrap(err)
+	}
+
+	return v, nil
 }
 
 // Scan implements the sql.Scanner interface.
@@ -49,7 +55,7 @@ func (n *Timestamp) Scan(src any) error {
 	}
 
 	if err := n.Timestamp.Scan(src); err != nil {
-		return err
+		return oops.Wrap(err)
 	}
 
 	n.Valid = true
@@ -63,7 +69,12 @@ func (n Timestamp) MarshalJSON() ([]byte, error) {
 		return []byte("null"), nil
 	}
 
-	return json.Marshal(n.Timestamp)
+	b, err := json.Marshal(n.Timestamp)
+	if err != nil {
+		return nil, oops.Wrap(err)
+	}
+
+	return b, nil
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
@@ -75,7 +86,7 @@ func (n *Timestamp) UnmarshalJSON(b []byte) error {
 	}
 
 	if err := json.Unmarshal(b, &n.Timestamp); err != nil {
-		return err
+		return oops.Wrap(err)
 	}
 
 	n.Valid = true

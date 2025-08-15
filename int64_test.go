@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/m0t0k1ch1-go/coreutil"
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/require"
 
 	"github.com/m0t0k1ch1-go/nullable/v2"
@@ -24,14 +24,16 @@ func TestNewInt64FromInt64Ptr(t *testing.T) {
 			},
 			{
 				"not nil",
-				coreutil.Ptr(int64(1231006505)),
+				lo.ToPtr(int64(1231006505)),
 				nullable.NewInt64(1231006505, true),
 			},
 		}
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				require.Equal(t, tc.out, nullable.NewInt64FromInt64Ptr(tc.in))
+				n := nullable.NewInt64FromInt64Ptr(tc.in)
+
+				require.Equal(t, tc.out, n)
 			})
 		}
 	})
@@ -52,13 +54,15 @@ func TestInt64Int64Ptr(t *testing.T) {
 			{
 				"not nil",
 				nullable.NewInt64(1231006505, true),
-				coreutil.Ptr(int64(1231006505)),
+				lo.ToPtr(int64(1231006505)),
 			},
 		}
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				require.Equal(t, tc.out, tc.in.Int64Ptr())
+				p := tc.in.Int64Ptr()
+
+				require.Equal(t, tc.out, p)
 			})
 		}
 	})
@@ -86,7 +90,7 @@ func TestInt64MarshalJSON(t *testing.T) {
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				b, err := json.Marshal(tc.in)
-				require.Nil(t, err)
+				require.NoError(t, err)
 
 				require.Equal(t, tc.out, b)
 			})
@@ -116,7 +120,10 @@ func TestInt64UnmarshalJSON(t *testing.T) {
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				var n nullable.Int64
-				require.Nil(t, json.Unmarshal(tc.in, &n))
+				{
+					err := json.Unmarshal(tc.in, &n)
+					require.NoError(t, err)
+				}
 
 				require.Equal(t, tc.out, n)
 			})
