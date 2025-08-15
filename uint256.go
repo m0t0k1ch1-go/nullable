@@ -5,7 +5,7 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 
-	"github.com/m0t0k1ch1-go/bigutil/v2"
+	"github.com/m0t0k1ch1-go/bigutil/v3"
 )
 
 // Uint256 is a nullable github.com/m0t0k1ch1-go/bigutil.Uint256.
