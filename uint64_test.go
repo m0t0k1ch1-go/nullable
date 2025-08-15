@@ -106,16 +106,16 @@ func TestUint64Scan(t *testing.T) {
 			in   any
 		}{
 			{
-				name: "float64",
-				in:   float64(0),
+				"float64",
+				float64(0),
 			},
 			{
-				name: "negative int64",
-				in:   int64(-1),
+				"negative int64",
+				int64(-1),
 			},
 			{
-				name: "invalid bytes",
-				in:   []byte("invalid"),
+				"invalid []byte",
+				[]byte("invalid"),
 			},
 		}
 
@@ -137,7 +137,7 @@ func TestUint64Scan(t *testing.T) {
 			out  nullable.Uint64
 		}{
 			{
-				"null",
+				"nil",
 				nil,
 				nullable.NewUint64(0, false),
 			},

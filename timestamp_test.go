@@ -79,12 +79,12 @@ func TestTimestampScan(t *testing.T) {
 			out  nullable.Timestamp
 		}{
 			{
-				"null",
+				"nil",
 				nil,
 				nullable.NewTimestamp(timeutil.Timestamp{}, false),
 			},
 			{
-				"not null",
+				"not nil",
 				int64(1231006505),
 				nullable.NewTimestamp(timeutil.NewTimestamp(time.Unix(1231006505, 0)), true),
 			},

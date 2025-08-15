@@ -25,7 +25,7 @@ func TestUint256NullableString(t *testing.T) {
 				nullable.NewString("", false),
 			},
 			{
-				"min",
+				"zero",
 				nullable.NewUint256(bigutil.NewUint256FromUint64(0), true),
 				nullable.NewString("0x0", true),
 			},
@@ -59,7 +59,7 @@ func TestUint256Value(t *testing.T) {
 				nil,
 			},
 			{
-				"min",
+				"zero",
 				nullable.NewUint256(bigutil.NewUint256FromUint64(0), true),
 				[]byte{0x0},
 			},
@@ -89,12 +89,12 @@ func TestUint256Scan(t *testing.T) {
 			out  nullable.Uint256
 		}{
 			{
-				"null",
+				"nil",
 				nil,
 				nullable.NewUint256(bigutil.Uint256{}, false),
 			},
 			{
-				"min",
+				"zero",
 				[]byte{0x0},
 				nullable.NewUint256(bigutil.NewUint256FromUint64(0), true),
 			},
@@ -133,7 +133,7 @@ func TestUint256MarshalJSON(t *testing.T) {
 				[]byte("null"),
 			},
 			{
-				"min",
+				"zero",
 				nullable.NewUint256(bigutil.NewUint256FromUint64(0), true),
 				[]byte(`"0x0"`),
 			},
@@ -168,7 +168,7 @@ func TestUint256UnmarshalJSON(t *testing.T) {
 				nullable.NewUint256(bigutil.Uint256{}, false),
 			},
 			{
-				"min (hexadecimal string)",
+				"zero (hexadecimal string)",
 				[]byte(`"0x0"`),
 				nullable.NewUint256(bigutil.NewUint256FromUint64(0), true),
 			},
@@ -178,7 +178,7 @@ func TestUint256UnmarshalJSON(t *testing.T) {
 				nullable.NewUint256(bigutil.MustNewUint256(ethmath.MaxBig256), true),
 			},
 			{
-				"min (decimal string)",
+				"zero (decimal string)",
 				[]byte(`"0"`),
 				nullable.NewUint256(bigutil.NewUint256FromUint64(0), true),
 			},
@@ -188,7 +188,7 @@ func TestUint256UnmarshalJSON(t *testing.T) {
 				nullable.NewUint256(bigutil.MustNewUint256(ethmath.MaxBig256), true),
 			},
 			{
-				"min (number)",
+				"zero (number)",
 				[]byte("0"),
 				nullable.NewUint256(bigutil.NewUint256FromUint64(0), true),
 			},
