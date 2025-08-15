@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
+
+	"github.com/samber/oops"
 )
 
 // Bool is a nullable bool.
@@ -45,7 +47,12 @@ func (n Bool) MarshalJSON() ([]byte, error) {
 		return []byte("null"), nil
 	}
 
-	return json.Marshal(n.Bool)
+	b, err := json.Marshal(n.Bool)
+	if err != nil {
+		return nil, oops.Wrap(err)
+	}
+
+	return b, nil
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
@@ -57,7 +64,7 @@ func (n *Bool) UnmarshalJSON(b []byte) error {
 	}
 
 	if err := json.Unmarshal(b, &n.Bool); err != nil {
-		return err
+		return oops.Wrap(err)
 	}
 
 	n.Valid = true

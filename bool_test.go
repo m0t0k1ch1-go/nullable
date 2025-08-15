@@ -31,7 +31,9 @@ func TestNewBoolFromBoolPtr(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				require.Equal(t, tc.out, nullable.NewBoolFromBoolPtr(tc.in))
+				n := nullable.NewBoolFromBoolPtr(tc.in)
+
+				require.Equal(t, tc.out, n)
 			})
 		}
 	})
@@ -58,7 +60,9 @@ func TestBoolBoolPtr(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				require.Equal(t, tc.out, tc.in.BoolPtr())
+				p := tc.in.BoolPtr()
+
+				require.Equal(t, tc.out, p)
 			})
 		}
 	})
@@ -86,7 +90,7 @@ func TestBoolMarshalJSON(t *testing.T) {
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				b, err := json.Marshal(tc.in)
-				require.Nil(t, err)
+				require.NoError(t, err)
 
 				require.Equal(t, tc.out, b)
 			})
@@ -116,7 +120,10 @@ func TestBoolUnmarshalJSON(t *testing.T) {
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				var n nullable.Bool
-				require.Nil(t, json.Unmarshal(tc.in, &n))
+				{
+					err := json.Unmarshal(tc.in, &n)
+					require.NoError(t, err)
+				}
 
 				require.Equal(t, tc.out, n)
 			})
