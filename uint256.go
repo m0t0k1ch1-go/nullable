@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 
 	"github.com/m0t0k1ch1-go/bigutil/v3"
+	"github.com/samber/oops"
 )
 
 // Uint256 is a nullable github.com/m0t0k1ch1-go/bigutil.Uint256.
@@ -37,7 +38,12 @@ func (n Uint256) Value() (driver.Value, error) {
 		return nil, nil
 	}
 
-	return n.Uint256.Value()
+	v, err := n.Uint256.Value()
+	if err != nil {
+		return nil, oops.Wrap(err)
+	}
+
+	return v, nil
 }
 
 // Scan implements the sql.Scanner interface.
@@ -49,7 +55,7 @@ func (n *Uint256) Scan(src any) error {
 	}
 
 	if err := n.Uint256.Scan(src); err != nil {
-		return err
+		return oops.Wrap(err)
 	}
 
 	n.Valid = true
@@ -63,7 +69,12 @@ func (n Uint256) MarshalJSON() ([]byte, error) {
 		return []byte("null"), nil
 	}
 
-	return json.Marshal(n.Uint256)
+	b, err := json.Marshal(n.Uint256)
+	if err != nil {
+		return nil, oops.Wrap(err)
+	}
+
+	return b, nil
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
@@ -75,7 +86,7 @@ func (n *Uint256) UnmarshalJSON(b []byte) error {
 	}
 
 	if err := json.Unmarshal(b, &n.Uint256); err != nil {
-		return err
+		return oops.Wrap(err)
 	}
 
 	n.Valid = true

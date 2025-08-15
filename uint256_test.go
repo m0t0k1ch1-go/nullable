@@ -38,7 +38,9 @@ func TestUint256NullableString(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				require.Equal(t, tc.out, tc.in.NullableString())
+				n := tc.in.NullableString()
+
+				require.Equal(t, tc.out, n)
 			})
 		}
 	})
@@ -71,7 +73,7 @@ func TestUint256Value(t *testing.T) {
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				v, err := tc.in.Value()
-				require.Nil(t, err)
+				require.NoError(t, err)
 
 				require.Equal(t, tc.out, v)
 			})
@@ -106,7 +108,10 @@ func TestUint256Scan(t *testing.T) {
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				var n nullable.Uint256
-				require.Nil(t, n.Scan(tc.in))
+				{
+					err := n.Scan(tc.in)
+					require.NoError(t, err)
+				}
 
 				require.Equal(t, tc.out.Valid, n.Valid)
 				require.Zero(t, n.Uint256.BigInt().Cmp(tc.out.Uint256.BigInt()))
@@ -142,7 +147,7 @@ func TestUint256MarshalJSON(t *testing.T) {
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				b, err := json.Marshal(tc.in)
-				require.Nil(t, err)
+				require.NoError(t, err)
 
 				require.Equal(t, tc.out, b)
 			})
@@ -197,7 +202,10 @@ func TestUint256UnmarshalJSON(t *testing.T) {
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				var n nullable.Uint256
-				require.Nil(t, json.Unmarshal(tc.in, &n))
+				{
+					err := json.Unmarshal(tc.in, &n)
+					require.NoError(t, err)
+				}
 
 				require.Equal(t, tc.out.Valid, n.Valid)
 				require.Zero(t, n.Uint256.BigInt().Cmp(tc.out.Uint256.BigInt()))
