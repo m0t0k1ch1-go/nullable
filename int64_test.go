@@ -31,7 +31,9 @@ func TestNewInt64FromInt64Ptr(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				require.Equal(t, tc.out, nullable.NewInt64FromInt64Ptr(tc.in))
+				n := nullable.NewInt64FromInt64Ptr(tc.in)
+
+				require.Equal(t, tc.out, n)
 			})
 		}
 	})
@@ -58,7 +60,9 @@ func TestInt64Int64Ptr(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				require.Equal(t, tc.out, tc.in.Int64Ptr())
+				p := tc.in.Int64Ptr()
+
+				require.Equal(t, tc.out, p)
 			})
 		}
 	})
@@ -86,7 +90,7 @@ func TestInt64MarshalJSON(t *testing.T) {
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				b, err := json.Marshal(tc.in)
-				require.Nil(t, err)
+				require.NoError(t, err)
 
 				require.Equal(t, tc.out, b)
 			})
@@ -116,7 +120,10 @@ func TestInt64UnmarshalJSON(t *testing.T) {
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				var n nullable.Int64
-				require.Nil(t, json.Unmarshal(tc.in, &n))
+				{
+					err := json.Unmarshal(tc.in, &n)
+					require.NoError(t, err)
+				}
 
 				require.Equal(t, tc.out, n)
 			})
