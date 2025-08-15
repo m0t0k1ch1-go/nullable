@@ -79,12 +79,12 @@ func TestEthHashScan(t *testing.T) {
 			out  nullable.EthHash
 		}{
 			{
-				"null",
+				"nil",
 				nil,
 				nullable.NewEthHash(ethcommon.Hash{}, false),
 			},
 			{
-				"not null",
+				"not nil",
 				ethhexutil.MustDecode("0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"),
 				nullable.NewEthHash(ethcommon.HexToHash("0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"), true),
 			},

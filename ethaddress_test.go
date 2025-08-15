@@ -79,12 +79,12 @@ func TestEthAddressScan(t *testing.T) {
 			out  nullable.EthAddress
 		}{
 			{
-				"null",
+				"nil",
 				nil,
 				nullable.NewEthAddress(ethcommon.Address{}, false),
 			},
 			{
-				"not null",
+				"not nil",
 				ethhexutil.MustDecode("0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"),
 				nullable.NewEthAddress(ethcommon.HexToAddress("0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"), true),
 			},
