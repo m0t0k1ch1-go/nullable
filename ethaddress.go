@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 
 	ethcommon "github.com/ethereum/go-ethereum/common"
+	"github.com/samber/oops"
 )
 
 // EthAddress is a nullable github.com/ethereum/go-ethereum/common.Address.
@@ -37,7 +38,12 @@ func (n EthAddress) Value() (driver.Value, error) {
 		return nil, nil
 	}
 
-	return n.EthAddress.Value()
+	v, err := n.EthAddress.Value()
+	if err != nil {
+		return nil, oops.Wrap(err)
+	}
+
+	return v, nil
 }
 
 // Scan implements the sql.Scanner interface.
@@ -49,7 +55,7 @@ func (n *EthAddress) Scan(src any) error {
 	}
 
 	if err := n.EthAddress.Scan(src); err != nil {
-		return err
+		return oops.Wrap(err)
 	}
 
 	n.Valid = true
@@ -63,7 +69,12 @@ func (n EthAddress) MarshalJSON() ([]byte, error) {
 		return []byte("null"), nil
 	}
 
-	return json.Marshal(n.EthAddress.String())
+	b, err := json.Marshal(n.EthAddress.Hex())
+	if err != nil {
+		return nil, oops.Wrap(err)
+	}
+
+	return b, nil
 }
 
 // UnmarshalJSON implements the json.Unmarshaler interface.
@@ -75,7 +86,7 @@ func (n *EthAddress) UnmarshalJSON(b []byte) error {
 	}
 
 	if err := json.Unmarshal(b, &n.EthAddress); err != nil {
-		return err
+		return oops.Wrap(err)
 	}
 
 	n.Valid = true
