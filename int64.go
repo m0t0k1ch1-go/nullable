@@ -23,7 +23,7 @@ func NewInt64(i int64, valid bool) Int64 {
 	}
 }
 
-// NewInt64FromInt64Ptr returns a new Int64 from a int64 pointer.
+// NewInt64FromInt64Ptr returns a new Int64 from an int64 pointer.
 func NewInt64FromInt64Ptr(i *int64) Int64 {
 	if i == nil {
 		return NewInt64(0, false)
