@@ -197,7 +197,7 @@ func TestUint256_MarshalJSON(t *testing.T) {
 	})
 }
 
-func TestUint256UnmarshalJSON(t *testing.T) {
+func TestUint256_UnmarshalJSON(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		tcs := []struct {
 			name string
