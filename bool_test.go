@@ -157,12 +157,12 @@ func TestBool_UnmarshalJSON(t *testing.T) {
 				nullable.NewBool(false, false),
 			},
 			{
-				"true",
+				"boolean: true",
 				[]byte(`true`),
 				nullable.NewBool(true, true),
 			},
 			{
-				"false",
+				"boolean: false",
 				[]byte(`false`),
 				nullable.NewBool(false, true),
 			},

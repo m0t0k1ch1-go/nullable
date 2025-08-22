@@ -158,12 +158,12 @@ func TestString_UnmarshalJSON(t *testing.T) {
 				nullable.NewString("", false),
 			},
 			{
-				"empty",
+				"string: empty",
 				[]byte(`""`),
 				nullable.NewString("", true),
 			},
 			{
-				"non-empty",
+				"string: non-empty",
 				[]byte(`"non-empty"`),
 				nullable.NewString("non-empty", true),
 			},
