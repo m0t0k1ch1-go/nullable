@@ -6,7 +6,7 @@ toolchain go1.24.6
 
 require (
 	github.com/ethereum/go-ethereum v1.16.2
-	github.com/m0t0k1ch1-go/bigutil/v3 v3.8.1
+	github.com/m0t0k1ch1-go/bigutil/v3 v3.8.3
 	github.com/m0t0k1ch1-go/timeutil/v5 v5.1.1
 	github.com/samber/lo v1.51.0
 	github.com/samber/oops v1.19.0
