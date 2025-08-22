@@ -4,9 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/samber/lo"
 	"github.com/stretchr/testify/require"
-	"gopkg.in/yaml.v2"
 
 	"github.com/m0t0k1ch1-go/nullable/v2"
 )
@@ -16,7 +14,7 @@ func TestNewStringFromStringPtr(t *testing.T) {
 		tcs := []struct {
 			name string
 			in   *string
-			out  nullable.String
+			want nullable.String
 		}{
 			{
 				"nil",
@@ -24,67 +22,89 @@ func TestNewStringFromStringPtr(t *testing.T) {
 				nullable.NewString("", false),
 			},
 			{
-				"not nil",
-				lo.ToPtr("not nil"),
-				nullable.NewString("not nil", true),
+				"empty",
+				ptr(""),
+				nullable.NewString("", true),
+			},
+			{
+				"non-empty",
+				ptr("non-empty"),
+				nullable.NewString("non-empty", true),
 			},
 		}
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				n := nullable.NewStringFromStringPtr(tc.in)
-
-				require.Equal(t, tc.out, n)
+				require.Equal(t, tc.want.Valid, n.Valid)
+				require.Equal(t, tc.want.String, n.String)
 			})
 		}
 	})
 }
 
-func TestStringStringPtr(t *testing.T) {
+func TestString_StringPtr(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		tcs := []struct {
 			name string
 			in   nullable.String
-			out  *string
+			want *string
 		}{
 			{
-				"nil",
+				"null",
 				nullable.NewString("", false),
 				nil,
 			},
 			{
-				"not nil",
-				nullable.NewString("not nil", true),
-				lo.ToPtr("not nil"),
+				"empty",
+				nullable.NewString("", true),
+				ptr(""),
+			},
+			{
+				"non-empty",
+				nullable.NewString("non-empty", true),
+				ptr("non-empty"),
 			},
 		}
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				p := tc.in.StringPtr()
+				n := tc.in
+				p := n.StringPtr()
+				require.Equal(t, tc.want, p)
 
-				require.Equal(t, tc.out, p)
+				if p != nil {
+					*p = tc.in.String + " modified"
+
+					require.Equal(t, tc.in.Valid, n.Valid)
+					require.Equal(t, tc.in.String, n.String)
+				}
 			})
 		}
 	})
 }
 
-func TestStringMarshalJSON(t *testing.T) {
+func TestString_MarshalJSON(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		tcs := []struct {
 			name string
 			in   nullable.String
-			out  []byte
+			want []byte
 		}{
 			{
 				"null",
 				nullable.NewString("", false),
-				[]byte("null"),
+				[]byte(`null`),
 			},
 			{
-				"not null",
-				nullable.NewString("not null", true),
-				[]byte(`"not null"`),
+				"empty",
+				nullable.NewString("", true),
+				[]byte(`""`),
+			},
+			{
+				"non-empty",
+				nullable.NewString("non-empty", true),
+				[]byte(`"non-empty"`),
 			},
 		}
 
@@ -92,104 +112,104 @@ func TestStringMarshalJSON(t *testing.T) {
 			t.Run(tc.name, func(t *testing.T) {
 				b, err := json.Marshal(tc.in)
 				require.NoError(t, err)
-
-				require.Equal(t, tc.out, b)
+				require.Equal(t, tc.want, b)
 			})
 		}
 	})
 }
 
-func TestStringUnmarshalJSON(t *testing.T) {
-	t.Run("success", func(t *testing.T) {
+func TestString_UnmarshalJSON(t *testing.T) {
+	t.Run("failure", func(t *testing.T) {
 		tcs := []struct {
 			name string
 			in   []byte
-			out  nullable.String
+			want string
 		}{
 			{
-				"null",
-				[]byte("null"),
-				nullable.NewString("", false),
+				"boolean",
+				[]byte(`true`),
+				"",
 			},
 			{
-				"not null",
-				[]byte(`"not null"`),
-				nullable.NewString("not null", true),
+				"number",
+				[]byte(`0`),
+				"",
 			},
 		}
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				var n nullable.String
-				{
-					err := json.Unmarshal(tc.in, &n)
-					require.NoError(t, err)
-				}
+				err := n.UnmarshalJSON(tc.in)
+				require.ErrorContains(t, err, tc.want)
+			})
+		}
+	})
 
-				require.Equal(t, tc.out, n)
+	t.Run("success", func(t *testing.T) {
+		tcs := []struct {
+			name string
+			in   []byte
+			want nullable.String
+		}{
+			{
+				"null",
+				[]byte(`null`),
+				nullable.NewString("", false),
+			},
+			{
+				"empty",
+				[]byte(`""`),
+				nullable.NewString("", true),
+			},
+			{
+				"non-empty",
+				[]byte(`"non-empty"`),
+				nullable.NewString("non-empty", true),
+			},
+		}
+
+		for _, tc := range tcs {
+			t.Run(tc.name, func(t *testing.T) {
+				var n nullable.String
+				err := n.UnmarshalJSON(tc.in)
+				require.NoError(t, err)
+				require.Equal(t, tc.want.Valid, n.Valid)
+				require.Equal(t, tc.want.String, n.String)
 			})
 		}
 	})
 }
 
-func TestStringMarshalYAML(t *testing.T) {
+func TestString_MarshalYAML(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		tcs := []struct {
 			name string
 			in   nullable.String
-			out  []byte
+			want any
 		}{
 			{
 				"null",
 				nullable.NewString("", false),
-				[]byte("null\n"),
+				nil,
 			},
 			{
-				"not null",
-				nullable.NewString("not null", true),
-				[]byte("not null\n"),
+				"empty",
+				nullable.NewString("", true),
+				"",
+			},
+			{
+				"non-empty",
+				nullable.NewString("non-empty", true),
+				"non-empty",
 			},
 		}
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				b, err := yaml.Marshal(tc.in)
+				v, err := tc.in.MarshalYAML()
 				require.NoError(t, err)
-
-				require.Equal(t, tc.out, b)
-			})
-		}
-	})
-}
-
-func TestStringUnmarshalYAML(t *testing.T) {
-	t.Run("success", func(t *testing.T) {
-		tcs := []struct {
-			name string
-			in   []byte
-			out  nullable.String
-		}{
-			{
-				"null",
-				[]byte("null\n"),
-				nullable.NewString("", false),
-			},
-			{
-				"not null",
-				[]byte("not null\n"),
-				nullable.NewString("not null", true),
-			},
-		}
-
-		for _, tc := range tcs {
-			t.Run(tc.name, func(t *testing.T) {
-				var n nullable.String
-				{
-					err := yaml.Unmarshal(tc.in, &n)
-					require.NoError(t, err)
-				}
-
-				require.Equal(t, tc.out, n)
+				require.Equal(t, tc.want, v)
 			})
 		}
 	})
