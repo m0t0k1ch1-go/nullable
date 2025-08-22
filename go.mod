@@ -11,6 +11,7 @@ require (
 	github.com/samber/lo v1.51.0
 	github.com/samber/oops v1.19.0
 	github.com/stretchr/testify v1.10.0
+	go.yaml.in/yaml/v3 v3.0.4
 )
 
 require (

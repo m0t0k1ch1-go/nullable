@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"go.yaml.in/yaml/v3"
 
 	"github.com/m0t0k1ch1-go/nullable/v2"
 )
@@ -210,6 +211,86 @@ func TestString_MarshalYAML(t *testing.T) {
 				v, err := tc.in.MarshalYAML()
 				require.NoError(t, err)
 				require.Equal(t, tc.want, v)
+			})
+		}
+	})
+}
+
+func TestString_UnmarshalYAML(t *testing.T) {
+	t.Run("failure", func(t *testing.T) {
+		tcs := []struct {
+			name string
+			in   *yaml.Node
+			want string
+		}{
+			{
+				"sequence",
+				&yaml.Node{
+					Kind: yaml.SequenceNode,
+					Tag:  "!!seq",
+				},
+				"",
+			},
+			{
+				"mapping",
+				&yaml.Node{
+					Kind: yaml.MappingNode,
+					Tag:  "!!map",
+				},
+				"",
+			},
+		}
+
+		for _, tc := range tcs {
+			t.Run(tc.name, func(t *testing.T) {
+				var n nullable.String
+				err := n.UnmarshalYAML(tc.in)
+				require.ErrorContains(t, err, tc.want)
+			})
+		}
+	})
+
+	t.Run("success", func(t *testing.T) {
+		tcs := []struct {
+			name string
+			in   *yaml.Node
+			want nullable.String
+		}{
+			{
+				"null",
+				&yaml.Node{
+					Kind: yaml.ScalarNode,
+					Tag:  "!!null",
+				},
+				nullable.NewString("", false),
+			},
+			{
+				"string: empty",
+				&yaml.Node{
+					Kind:  yaml.ScalarNode,
+					Tag:   "!!str",
+					Value: "",
+				},
+				nullable.NewString("", true),
+			},
+			{
+				"string: non-empty",
+				&yaml.Node{
+					Kind:  yaml.ScalarNode,
+					Tag:   "!!str",
+					Value: "non-empty",
+				},
+				nullable.NewString("non-empty", true),
+			},
+		}
+
+		for _, tc := range tcs {
+			t.Run(tc.name, func(t *testing.T) {
+				var n nullable.String
+				err := n.UnmarshalYAML(tc.in)
+				require.NoError(t, err)
+				require.Equal(t, tc.want.Valid, n.Valid)
+				require.Equal(t, tc.want.String, n.String)
 			})
 		}
 	})

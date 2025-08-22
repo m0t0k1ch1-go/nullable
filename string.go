@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
+
+	"go.yaml.in/yaml/v3"
 )
 
 // String represents a nullable string wrapping sql.NullString.
@@ -79,11 +81,17 @@ func (n String) MarshalYAML() (any, error) {
 	return n.String, nil
 }
 
-// UnmarshalYAML implements yaml.Unmarshaler for yaml.v2.
-// It accepts a YAML string.
-// Deprecated: Kept for yaml.v2 compatibility.
-func (n *String) UnmarshalYAML(unmarshal func(any) error) error {
-	if err := unmarshal(&n.String); err != nil {
+// UnmarshalYAML implements yaml.Unmarshaler.
+// It accepts a YAML string or null.
+// Note: yaml.v3 may bypass this method for null; handle the explicit !!null tag defensively.
+func (n *String) UnmarshalYAML(value *yaml.Node) error {
+	if value.Tag == "!!null" {
+		n.String, n.Valid = "", false
+
+		return nil
+	}
+
+	if err := value.Decode(&n.String); err != nil {
 		return err
 	}
 
