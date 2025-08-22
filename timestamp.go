@@ -5,7 +5,7 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 
-	"github.com/m0t0k1ch1-go/timeutil/v4"
+	"github.com/m0t0k1ch1-go/timeutil/v5"
 	"github.com/samber/oops"
 )
 
