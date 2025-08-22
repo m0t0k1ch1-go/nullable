@@ -84,7 +84,7 @@ func TestInt64_Int64Ptr(t *testing.T) {
 				require.Equal(t, tc.want, p)
 
 				if p != nil {
-					*p = 1
+					*p = math.MaxInt8
 
 					require.Equal(t, tc.in.Valid, n.Valid)
 					require.Equal(t, tc.in.Int64, n.Int64)
@@ -133,7 +133,7 @@ func TestInt64_MarshalJSON(t *testing.T) {
 	})
 }
 
-func TestInt64UnmarshalJSON(t *testing.T) {
+func TestInt64_UnmarshalJSON(t *testing.T) {
 	t.Run("failure", func(t *testing.T) {
 		tcs := []struct {
 			name string
