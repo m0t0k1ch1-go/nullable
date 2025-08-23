@@ -1,6 +1,8 @@
 package nullable_test
 
 import (
+	"database/sql"
+	"database/sql/driver"
 	"encoding/json"
 	"testing"
 
@@ -9,6 +11,16 @@ import (
 
 	"github.com/m0t0k1ch1-go/nullable/v2"
 )
+
+func TestString(t *testing.T) {
+	var n nullable.String
+	require.Implements(t, (*driver.Valuer)(nil), &n)
+	require.Implements(t, (*sql.Scanner)(nil), &n)
+	require.Implements(t, (*json.Marshaler)(nil), &n)
+	require.Implements(t, (*yaml.Marshaler)(nil), &n)
+	require.Implements(t, (*json.Unmarshaler)(nil), &n)
+	require.Implements(t, (*yaml.Unmarshaler)(nil), &n)
+}
 
 func TestNewStringFromStringPtr(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
@@ -42,6 +54,16 @@ func TestNewStringFromStringPtr(t *testing.T) {
 			})
 		}
 	})
+
+	t.Run("success: captures value at call time", func(t *testing.T) {
+		s := ptr("non-empty")
+		n := nullable.NewStringFromStringPtr(s)
+
+		*s = ""
+
+		require.True(t, n.Valid)
+		require.Equal(t, "non-empty", n.String)
+	})
 }
 
 func TestString_StringPtr(t *testing.T) {
@@ -70,18 +92,20 @@ func TestString_StringPtr(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				n := tc.in
-				p := n.StringPtr()
-				require.Equal(t, tc.want, p)
-
-				if p != nil {
-					*p = tc.in.String + " modified"
-
-					require.Equal(t, tc.in.Valid, n.Valid)
-					require.Equal(t, tc.in.String, n.String)
-				}
+				s := tc.in.StringPtr()
+				require.Equal(t, tc.want, s)
 			})
 		}
+	})
+
+	t.Run("success: pointer refers to a copy", func(t *testing.T) {
+		n := nullable.NewString("non-empty", true)
+		s := n.StringPtr()
+
+		*s = ""
+
+		require.True(t, n.Valid)
+		require.Equal(t, "non-empty", n.String)
 	})
 }
 

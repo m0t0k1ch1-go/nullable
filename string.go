@@ -23,8 +23,8 @@ func NewString(s string, valid bool) String {
 	}
 }
 
-// NewStringFromStringPtr returns a new String from a string pointer.
-// A nil pointer is treated as invalid.
+// NewStringFromStringPtr returns a new String from a *string.
+// It captures the value at call time; a nil pointer is treated as invalid.
 func NewStringFromStringPtr(s *string) String {
 	if s == nil {
 		return NewString("", false)
@@ -33,7 +33,7 @@ func NewStringFromStringPtr(s *string) String {
 	return NewString(*s, true)
 }
 
-// StringPtr returns the value as a string pointer, or nil if invalid.
+// StringPtr returns the value as a *string, or nil if invalid.
 // The pointer refers to a copy.
 func (n String) StringPtr() *string {
 	if !n.Valid {
@@ -53,6 +53,16 @@ func (n String) MarshalJSON() ([]byte, error) {
 	return json.Marshal(n.String)
 }
 
+// MarshalYAML implements yaml.Marshaler.
+// It returns the value as a string, or nil if invalid.
+func (n String) MarshalYAML() (any, error) {
+	if !n.Valid {
+		return nil, nil
+	}
+
+	return n.String, nil
+}
+
 // UnmarshalJSON implements json.Unmarshaler.
 // It accepts a JSON string or null.
 func (n *String) UnmarshalJSON(b []byte) error {
@@ -69,16 +79,6 @@ func (n *String) UnmarshalJSON(b []byte) error {
 	n.Valid = true
 
 	return nil
-}
-
-// MarshalYAML implements yaml.Marshaler.
-// It returns the value as a string, or nil if invalid.
-func (n String) MarshalYAML() (any, error) {
-	if !n.Valid {
-		return nil, nil
-	}
-
-	return n.String, nil
 }
 
 // UnmarshalYAML implements yaml.Unmarshaler.
