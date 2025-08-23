@@ -1,6 +1,9 @@
 package nullable_test
 
 import (
+	"database/sql"
+	"database/sql/driver"
+	"encoding/json"
 	"math"
 	"testing"
 
@@ -8,6 +11,14 @@ import (
 
 	"github.com/m0t0k1ch1-go/nullable/v2"
 )
+
+func TestInt64(t *testing.T) {
+	var n nullable.Int64
+	require.Implements(t, (*driver.Valuer)(nil), &n)
+	require.Implements(t, (*sql.Scanner)(nil), &n)
+	require.Implements(t, (*json.Marshaler)(nil), &n)
+	require.Implements(t, (*json.Unmarshaler)(nil), &n)
+}
 
 func TestNewInt64FromInt64Ptr(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
@@ -46,6 +57,16 @@ func TestNewInt64FromInt64Ptr(t *testing.T) {
 			})
 		}
 	})
+
+	t.Run("success: captures value at call time", func(t *testing.T) {
+		i := ptr(int64(1))
+		n := nullable.NewInt64FromInt64Ptr(i)
+
+		*i = 0
+
+		require.True(t, n.Valid)
+		require.Equal(t, int64(1), n.Int64)
+	})
 }
 
 func TestInt64_Int64Ptr(t *testing.T) {
@@ -79,18 +100,20 @@ func TestInt64_Int64Ptr(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				n := tc.in
-				p := n.Int64Ptr()
-				require.Equal(t, tc.want, p)
-
-				if p != nil {
-					*p = math.MaxInt8
-
-					require.Equal(t, tc.in.Valid, n.Valid)
-					require.Equal(t, tc.in.Int64, n.Int64)
-				}
+				i := tc.in.Int64Ptr()
+				require.Equal(t, tc.want, i)
 			})
 		}
+	})
+
+	t.Run("success: pointer refers to a copy", func(t *testing.T) {
+		n := nullable.NewInt64(1, true)
+		i := n.Int64Ptr()
+
+		*i = 0
+
+		require.True(t, n.Valid)
+		require.Equal(t, int64(1), n.Int64)
 	})
 }
 
