@@ -1,23 +1,38 @@
 package nullable_test
 
 import (
+	"bytes"
+	"database/sql"
 	"database/sql/driver"
 	"encoding/json"
+	"math/big"
+	"strings"
 	"testing"
 
-	ethmath "github.com/ethereum/go-ethereum/common/math"
 	"github.com/m0t0k1ch1-go/bigutil/v3"
 	"github.com/stretchr/testify/require"
 
 	"github.com/m0t0k1ch1-go/nullable/v2"
 )
 
-func TestUint256NullableString(t *testing.T) {
+var (
+	maxUint256 = new(big.Int).Sub(new(big.Int).Exp(big.NewInt(2), big.NewInt(256), nil), big.NewInt(1))
+)
+
+func TestUint256(t *testing.T) {
+	var n nullable.Uint256
+	require.Implements(t, (*driver.Valuer)(nil), &n)
+	require.Implements(t, (*sql.Scanner)(nil), &n)
+	require.Implements(t, (*json.Marshaler)(nil), &n)
+	require.Implements(t, (*json.Unmarshaler)(nil), &n)
+}
+
+func TestUint256_NullableString(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		tcs := []struct {
 			name string
 			in   nullable.Uint256
-			out  nullable.String
+			want nullable.String
 		}{
 			{
 				"null",
@@ -30,28 +45,33 @@ func TestUint256NullableString(t *testing.T) {
 				nullable.NewString("0x0", true),
 			},
 			{
+				"one",
+				nullable.NewUint256(bigutil.NewUint256FromUint64(1), true),
+				nullable.NewString("0x1", true),
+			},
+			{
 				"max",
-				nullable.NewUint256(bigutil.MustNewUint256(ethmath.MaxBig256), true),
-				nullable.NewString("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff", true),
+				nullable.NewUint256(bigutil.MustNewUint256(maxUint256), true),
+				nullable.NewString("0x"+strings.Repeat("f", 64), true),
 			},
 		}
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				n := tc.in.NullableString()
-
-				require.Equal(t, tc.out, n)
+				require.Equal(t, tc.want.Valid, n.Valid)
+				require.Equal(t, tc.want.String, n.String)
 			})
 		}
 	})
 }
 
-func TestUint256Value(t *testing.T) {
+func TestUint256_Value(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		tcs := []struct {
 			name string
 			in   nullable.Uint256
-			out  driver.Value
+			want driver.Value
 		}{
 			{
 				"null",
@@ -64,9 +84,14 @@ func TestUint256Value(t *testing.T) {
 				[]byte{0x0},
 			},
 			{
+				"one",
+				nullable.NewUint256(bigutil.NewUint256FromUint64(1), true),
+				[]byte{0x1},
+			},
+			{
 				"max",
-				nullable.NewUint256(bigutil.MustNewUint256(ethmath.MaxBig256), true),
-				[]byte{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
+				nullable.NewUint256(bigutil.MustNewUint256(maxUint256), true),
+				bytes.Repeat([]byte{0xff}, 32),
 			},
 		}
 
@@ -74,19 +99,50 @@ func TestUint256Value(t *testing.T) {
 			t.Run(tc.name, func(t *testing.T) {
 				v, err := tc.in.Value()
 				require.NoError(t, err)
-
-				require.Equal(t, tc.out, v)
+				require.Equal(t, tc.want, v)
 			})
 		}
 	})
 }
 
-func TestUint256Scan(t *testing.T) {
+func TestUint256_Scan(t *testing.T) {
+	t.Run("failure", func(t *testing.T) {
+		tcs := []struct {
+			name string
+			in   any
+			want string
+		}{
+			{
+				"int64",
+				int64(0),
+				"",
+			},
+			{
+				"[]byte: empty",
+				[]byte{},
+				"",
+			},
+			{
+				"[]byte: exceeds 256 bits",
+				append([]byte{0x01}, bytes.Repeat([]byte{0x00}, 32)...),
+				"",
+			},
+		}
+
+		for _, tc := range tcs {
+			t.Run(tc.name, func(t *testing.T) {
+				var n nullable.Uint256
+				err := n.Scan(tc.in)
+				require.ErrorContains(t, err, tc.want)
+			})
+		}
+	})
+
 	t.Run("success", func(t *testing.T) {
 		tcs := []struct {
 			name string
 			in   any
-			out  nullable.Uint256
+			want nullable.Uint256
 		}{
 			{
 				"nil",
@@ -94,43 +150,45 @@ func TestUint256Scan(t *testing.T) {
 				nullable.NewUint256(bigutil.Uint256{}, false),
 			},
 			{
-				"zero",
-				[]byte{0x0},
+				"[]byte: zero",
+				[]byte{0x00},
 				nullable.NewUint256(bigutil.NewUint256FromUint64(0), true),
 			},
 			{
-				"max",
-				[]byte{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff},
-				nullable.NewUint256(bigutil.MustNewUint256(ethmath.MaxBig256), true),
+				"[]byte: one",
+				[]byte{0x01},
+				nullable.NewUint256(bigutil.NewUint256FromUint64(1), true),
+			},
+			{
+				"[]byte: max",
+				bytes.Repeat([]byte{0xff}, 32),
+				nullable.NewUint256(bigutil.MustNewUint256(maxUint256), true),
 			},
 		}
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				var n nullable.Uint256
-				{
-					err := n.Scan(tc.in)
-					require.NoError(t, err)
-				}
-
-				require.Equal(t, tc.out.Valid, n.Valid)
-				require.Zero(t, n.Uint256.BigInt().Cmp(tc.out.Uint256.BigInt()))
+				err := n.Scan(tc.in)
+				require.NoError(t, err)
+				require.Equal(t, tc.want.Valid, n.Valid)
+				require.Equal(t, tc.want.Uint256.String(), n.Uint256.String())
 			})
 		}
 	})
 }
 
-func TestUint256MarshalJSON(t *testing.T) {
+func TestUint256_MarshalJSON(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		tcs := []struct {
 			name string
 			in   nullable.Uint256
-			out  []byte
+			want []byte
 		}{
 			{
 				"null",
 				nullable.NewUint256(bigutil.Uint256{}, false),
-				[]byte("null"),
+				[]byte(`null`),
 			},
 			{
 				"zero",
@@ -138,77 +196,170 @@ func TestUint256MarshalJSON(t *testing.T) {
 				[]byte(`"0x0"`),
 			},
 			{
+				"one",
+				nullable.NewUint256(bigutil.NewUint256FromUint64(1), true),
+				[]byte(`"0x1"`),
+			},
+			{
 				"max",
-				nullable.NewUint256(bigutil.MustNewUint256(ethmath.MaxBig256), true),
-				[]byte(`"0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"`),
+				nullable.NewUint256(bigutil.MustNewUint256(maxUint256), true),
+				[]byte(`"0x` + strings.Repeat("f", 64) + `"`),
 			},
 		}
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				b, err := json.Marshal(tc.in)
+				b, err := tc.in.MarshalJSON()
 				require.NoError(t, err)
-
-				require.Equal(t, tc.out, b)
+				require.Equal(t, tc.want, b)
 			})
 		}
 	})
 }
 
-func TestUint256UnmarshalJSON(t *testing.T) {
+func TestUint256_UnmarshalJSON(t *testing.T) {
+	t.Run("failure", func(t *testing.T) {
+		tcs := []struct {
+			name string
+			in   []byte
+			want string
+		}{
+			{
+				"empty",
+				[]byte{},
+				"",
+			},
+			{
+				"number: negative",
+				[]byte(`-1`),
+				"",
+			},
+			{
+				"number: exceeds 256 bits",
+				[]byte(`115792089237316195423570985008687907853269984665640564039457584007913129639936`),
+				"",
+			},
+			{
+				"number: fractional",
+				[]byte(`0.0`),
+				"",
+			},
+			{
+				"number: exponential",
+				[]byte(`0e0`),
+				"",
+			},
+			{
+				"string: empty",
+				[]byte(`""`),
+				"",
+			},
+			{
+				"string: invalid decimal",
+				[]byte(`"invalid"`),
+				"",
+			},
+			{
+				"string: negative decimal",
+				[]byte(`"-1"`),
+				"",
+			},
+			{
+				"string: missing hex digits after 0x prefix",
+				[]byte(`"0x"`),
+				"",
+			},
+			{
+				"string: hex contains invalid escape sequences",
+				[]byte(`"0x\x"`),
+				"",
+			},
+			{
+				"string: hex contains non-hex characters",
+				[]byte(`"0xg"`),
+				"",
+			},
+			{
+				"string: hex exceeds 256 bits",
+				[]byte(`"0x1` + strings.Repeat("0", 64) + `"`),
+				"",
+			},
+		}
+
+		for _, tc := range tcs {
+			t.Run(tc.name, func(t *testing.T) {
+				var x256 bigutil.Uint256
+				err := x256.UnmarshalJSON(tc.in)
+				require.ErrorContains(t, err, tc.want)
+			})
+		}
+	})
+
 	t.Run("success", func(t *testing.T) {
 		tcs := []struct {
 			name string
 			in   []byte
-			out  nullable.Uint256
+			want nullable.Uint256
 		}{
 			{
 				"null",
-				[]byte("null"),
+				[]byte(`null`),
 				nullable.NewUint256(bigutil.Uint256{}, false),
 			},
 			{
-				"zero (hexadecimal string)",
-				[]byte(`"0x0"`),
+				"number: zero",
+				[]byte(`0`),
 				nullable.NewUint256(bigutil.NewUint256FromUint64(0), true),
 			},
 			{
-				"max (hexadecimal string)",
-				[]byte(`"0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"`),
-				nullable.NewUint256(bigutil.MustNewUint256(ethmath.MaxBig256), true),
+				"number: one",
+				[]byte(`1`),
+				nullable.NewUint256(bigutil.NewUint256FromUint64(1), true),
 			},
 			{
-				"zero (decimal string)",
+				"number: max",
+				[]byte(`115792089237316195423570985008687907853269984665640564039457584007913129639935`),
+				nullable.NewUint256(bigutil.MustNewUint256(maxUint256), true),
+			},
+			{
+				"string: decimal zero",
 				[]byte(`"0"`),
 				nullable.NewUint256(bigutil.NewUint256FromUint64(0), true),
 			},
 			{
-				"max (decimal string)",
-				[]byte(`"115792089237316195423570985008687907853269984665640564039457584007913129639935"`),
-				nullable.NewUint256(bigutil.MustNewUint256(ethmath.MaxBig256), true),
+				"string: decimal one",
+				[]byte(`"1"`),
+				nullable.NewUint256(bigutil.NewUint256FromUint64(1), true),
 			},
 			{
-				"zero (number)",
-				[]byte("0"),
+				"string: decimal max",
+				[]byte(`"115792089237316195423570985008687907853269984665640564039457584007913129639935"`),
+				nullable.NewUint256(bigutil.MustNewUint256(maxUint256), true),
+			},
+			{
+				"string: hex zero",
+				[]byte(`"0x0"`),
 				nullable.NewUint256(bigutil.NewUint256FromUint64(0), true),
 			},
 			{
-				"max (number)",
-				[]byte("115792089237316195423570985008687907853269984665640564039457584007913129639935"),
-				nullable.NewUint256(bigutil.MustNewUint256(ethmath.MaxBig256), true),
+				"string: hex one",
+				[]byte(`"0x1"`),
+				nullable.NewUint256(bigutil.NewUint256FromUint64(1), true),
+			},
+			{
+				"string: mixedcase hex max",
+				[]byte(`"0x` + strings.Repeat("fF", 32) + `"`),
+				nullable.NewUint256(bigutil.MustNewUint256(maxUint256), true),
 			},
 		}
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				var n nullable.Uint256
-				{
-					err := json.Unmarshal(tc.in, &n)
-					require.NoError(t, err)
-				}
-
-				require.Equal(t, tc.out.Valid, n.Valid)
-				require.Zero(t, n.Uint256.BigInt().Cmp(tc.out.Uint256.BigInt()))
+				err := n.UnmarshalJSON(tc.in)
+				require.NoError(t, err)
+				require.Equal(t, tc.want.Valid, n.Valid)
+				require.Equal(t, tc.want.Uint256.String(), n.Uint256.String())
 			})
 		}
 	})

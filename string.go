@@ -5,10 +5,10 @@ import (
 	"database/sql"
 	"encoding/json"
 
-	"github.com/samber/oops"
+	"go.yaml.in/yaml/v3"
 )
 
-// String is a nullable string.
+// String represents a nullable string wrapping sql.NullString.
 type String struct {
 	sql.NullString
 }
@@ -23,7 +23,8 @@ func NewString(s string, valid bool) String {
 	}
 }
 
-// NewStringFromStringPtr returns a new String from a string pointer.
+// NewStringFromStringPtr returns a new String from a *string.
+// It captures the value at call time; a nil pointer is treated as invalid.
 func NewStringFromStringPtr(s *string) String {
 	if s == nil {
 		return NewString("", false)
@@ -32,7 +33,8 @@ func NewStringFromStringPtr(s *string) String {
 	return NewString(*s, true)
 }
 
-// StringPtr returns the string pointer.
+// StringPtr returns the value as a *string, or nil if invalid.
+// The pointer refers to a copy.
 func (n String) StringPtr() *string {
 	if !n.Valid {
 		return nil
@@ -41,38 +43,18 @@ func (n String) StringPtr() *string {
 	return &n.String
 }
 
-// MarshalJSON implements the json.Marshaler interface.
+// MarshalJSON implements json.Marshaler.
+// It returns the value as a JSON string, or null if invalid.
 func (n String) MarshalJSON() ([]byte, error) {
 	if !n.Valid {
 		return []byte("null"), nil
 	}
 
-	b, err := json.Marshal(n.String)
-	if err != nil {
-		return nil, oops.Wrap(err)
-	}
-
-	return b, nil
+	return json.Marshal(n.String)
 }
 
-// UnmarshalJSON implements the json.Unmarshaler interface.
-func (n *String) UnmarshalJSON(b []byte) error {
-	if bytes.Equal(b, []byte("null")) {
-		n.String, n.Valid = "", false
-
-		return nil
-	}
-
-	if err := json.Unmarshal(b, &n.String); err != nil {
-		return oops.Wrap(err)
-	}
-
-	n.Valid = true
-
-	return nil
-}
-
-// MarshalYAML implements the yaml.Marshaler interface.
+// MarshalYAML implements yaml.Marshaler.
+// It returns the value as a string, or nil if invalid.
 func (n String) MarshalYAML() (any, error) {
 	if !n.Valid {
 		return nil, nil
@@ -81,10 +63,36 @@ func (n String) MarshalYAML() (any, error) {
 	return n.String, nil
 }
 
-// UnmarshalYAML implements the yaml.Unmarshaler interface.
-func (n *String) UnmarshalYAML(unmarshal func(any) error) error {
-	if err := unmarshal(&n.String); err != nil {
-		return oops.Wrap(err)
+// UnmarshalJSON implements json.Unmarshaler.
+// It accepts a JSON string or null.
+func (n *String) UnmarshalJSON(b []byte) error {
+	if bytes.Equal(b, []byte("null")) {
+		n.String, n.Valid = "", false
+
+		return nil
+	}
+
+	if err := json.Unmarshal(b, &n.String); err != nil {
+		return err
+	}
+
+	n.Valid = true
+
+	return nil
+}
+
+// UnmarshalYAML implements yaml.Unmarshaler.
+// It accepts a YAML string or null.
+// Note: yaml.v3 may bypass this method for null; handle the explicit !!null tag defensively.
+func (n *String) UnmarshalYAML(value *yaml.Node) error {
+	if value.Tag == "!!null" {
+		n.String, n.Valid = "", false
+
+		return nil
+	}
+
+	if err := value.Decode(&n.String); err != nil {
+		return err
 	}
 
 	n.Valid = true

@@ -6,10 +6,9 @@ import (
 	"encoding/json"
 
 	"github.com/m0t0k1ch1-go/timeutil/v5"
-	"github.com/samber/oops"
 )
 
-// Timestamp is a nullable github.com/m0t0k1ch1-go/timeutil.Timestamp.
+// Timestamp represents a nullable timeutil.Timestamp.
 type Timestamp struct {
 	Timestamp timeutil.Timestamp
 	Valid     bool
@@ -23,7 +22,7 @@ func NewTimestamp(ts timeutil.Timestamp, valid bool) Timestamp {
 	}
 }
 
-// NullableString returns the String.
+// NullableString returns the value as a String.
 func (n Timestamp) NullableString() String {
 	if !n.Valid {
 		return NewString("", false)
@@ -32,21 +31,18 @@ func (n Timestamp) NullableString() String {
 	return NewString(n.Timestamp.String(), true)
 }
 
-// Value implements the driver.Valuer interface.
+// Value implements driver.Valuer.
+// It returns the driver.Value returned by timeutil.Timestamp.Value, or nil if invalid.
 func (n Timestamp) Value() (driver.Value, error) {
 	if !n.Valid {
 		return nil, nil
 	}
 
-	v, err := n.Timestamp.Value()
-	if err != nil {
-		return nil, oops.Wrap(err)
-	}
-
-	return v, nil
+	return n.Timestamp.Value()
 }
 
-// Scan implements the sql.Scanner interface.
+// Scan implements sql.Scanner.
+// It accepts any value supported by timeutil.Timestamp.Scan, or nil.
 func (n *Timestamp) Scan(src any) error {
 	if src == nil {
 		n.Timestamp, n.Valid = timeutil.Timestamp{}, false
@@ -55,7 +51,7 @@ func (n *Timestamp) Scan(src any) error {
 	}
 
 	if err := n.Timestamp.Scan(src); err != nil {
-		return oops.Wrap(err)
+		return err
 	}
 
 	n.Valid = true
@@ -63,21 +59,18 @@ func (n *Timestamp) Scan(src any) error {
 	return nil
 }
 
-// MarshalJSON implements the json.Marshaler interface.
+// MarshalJSON implements json.Marshaler.
+// It returns the JSON encoding of timeutil.Timestamp, or null if invalid.
 func (n Timestamp) MarshalJSON() ([]byte, error) {
 	if !n.Valid {
 		return []byte("null"), nil
 	}
 
-	b, err := json.Marshal(n.Timestamp)
-	if err != nil {
-		return nil, oops.Wrap(err)
-	}
-
-	return b, nil
+	return json.Marshal(n.Timestamp)
 }
 
-// UnmarshalJSON implements the json.Unmarshaler interface.
+// UnmarshalJSON implements json.Unmarshaler.
+// It accepts any JSON value supported by timeutil.Timestamp, or null.
 func (n *Timestamp) UnmarshalJSON(b []byte) error {
 	if bytes.Equal(b, []byte("null")) {
 		n.Timestamp, n.Valid = timeutil.Timestamp{}, false
@@ -86,7 +79,7 @@ func (n *Timestamp) UnmarshalJSON(b []byte) error {
 	}
 
 	if err := json.Unmarshal(b, &n.Timestamp); err != nil {
-		return oops.Wrap(err)
+		return err
 	}
 
 	n.Valid = true
