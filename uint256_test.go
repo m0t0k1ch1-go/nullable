@@ -288,8 +288,8 @@ func TestUint256_UnmarshalJSON(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				var x256 bigutil.Uint256
-				err := x256.UnmarshalJSON(tc.in)
+				var n nullable.Uint256
+				err := n.UnmarshalJSON(tc.in)
 				require.ErrorContains(t, err, tc.want)
 			})
 		}
