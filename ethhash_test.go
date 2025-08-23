@@ -1,6 +1,7 @@
 package nullable_test
 
 import (
+	"database/sql"
 	"database/sql/driver"
 	"encoding/json"
 	"testing"
@@ -12,12 +13,20 @@ import (
 	"github.com/m0t0k1ch1-go/nullable/v2"
 )
 
-func TestEthHashNullableString(t *testing.T) {
+func TestEthHash(t *testing.T) {
+	var n nullable.EthHash
+	require.Implements(t, (*driver.Valuer)(nil), &n)
+	require.Implements(t, (*sql.Scanner)(nil), &n)
+	require.Implements(t, (*json.Marshaler)(nil), &n)
+	require.Implements(t, (*json.Unmarshaler)(nil), &n)
+}
+
+func TestEthHash_NullableString(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		tcs := []struct {
 			name string
 			in   nullable.EthHash
-			out  nullable.String
+			want nullable.String
 		}{
 			{
 				"null",
@@ -25,7 +34,7 @@ func TestEthHashNullableString(t *testing.T) {
 				nullable.NewString("", false),
 			},
 			{
-				"not null",
+				"Bitcoin genesis block",
 				nullable.NewEthHash(ethcommon.HexToHash("0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"), true),
 				nullable.NewString("0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f", true),
 			},
@@ -34,19 +43,19 @@ func TestEthHashNullableString(t *testing.T) {
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				n := tc.in.NullableString()
-
-				require.Equal(t, tc.out, n)
+				require.Equal(t, tc.want.Valid, n.Valid)
+				require.Equal(t, tc.want.String, n.String)
 			})
 		}
 	})
 }
 
-func TestEthHashValue(t *testing.T) {
+func TestEthHash_Value(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		tcs := []struct {
 			name string
 			in   nullable.EthHash
-			out  driver.Value
+			want driver.Value
 		}{
 			{
 				"null",
@@ -54,7 +63,7 @@ func TestEthHashValue(t *testing.T) {
 				nil,
 			},
 			{
-				"not null",
+				"Bitcoin genesis block",
 				nullable.NewEthHash(ethcommon.HexToHash("0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"), true),
 				ethhexutil.MustDecode("0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"),
 			},
@@ -64,19 +73,50 @@ func TestEthHashValue(t *testing.T) {
 			t.Run(tc.name, func(t *testing.T) {
 				v, err := tc.in.Value()
 				require.NoError(t, err)
-
-				require.Equal(t, tc.out, v)
+				require.Equal(t, tc.want, v)
 			})
 		}
 	})
 }
 
-func TestEthHashScan(t *testing.T) {
+func TestEthHash_Scan(t *testing.T) {
+	t.Run("failure", func(t *testing.T) {
+		tcs := []struct {
+			name string
+			in   any
+			want string
+		}{
+			{
+				"string",
+				"0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
+				"",
+			},
+			{
+				"[]byte: empty",
+				[]byte{},
+				"",
+			},
+			{
+				"[]byte: invalid",
+				[]byte{0x00},
+				"",
+			},
+		}
+
+		for _, tc := range tcs {
+			t.Run(tc.name, func(t *testing.T) {
+				var n nullable.EthHash
+				err := n.Scan(tc.in)
+				require.ErrorContains(t, err, tc.want)
+			})
+		}
+	})
+
 	t.Run("success", func(t *testing.T) {
 		tcs := []struct {
 			name string
 			in   any
-			out  nullable.EthHash
+			want nullable.EthHash
 		}{
 			{
 				"nil",
@@ -84,7 +124,7 @@ func TestEthHashScan(t *testing.T) {
 				nullable.NewEthHash(ethcommon.Hash{}, false),
 			},
 			{
-				"not nil",
+				"[]byte: Bitcoin genesis block",
 				ethhexutil.MustDecode("0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"),
 				nullable.NewEthHash(ethcommon.HexToHash("0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"), true),
 			},
@@ -93,31 +133,29 @@ func TestEthHashScan(t *testing.T) {
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				var n nullable.EthHash
-				{
-					err := n.Scan(tc.in)
-					require.NoError(t, err)
-				}
-
-				require.Equal(t, tc.out, n)
+				err := n.Scan(tc.in)
+				require.NoError(t, err)
+				require.Equal(t, tc.want.Valid, n.Valid)
+				require.Equal(t, tc.want.EthHash, n.EthHash)
 			})
 		}
 	})
 }
 
-func TestEthHashMarshalJSON(t *testing.T) {
+func TestEthHash_MarshalJSON(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		tcs := []struct {
 			name string
 			in   nullable.EthHash
-			out  []byte
+			want []byte
 		}{
 			{
 				"null",
 				nullable.NewEthHash(ethcommon.Hash{}, false),
-				[]byte("null"),
+				[]byte(`null`),
 			},
 			{
-				"not null",
+				"Bitcoin genesis block",
 				nullable.NewEthHash(ethcommon.HexToHash("0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"), true),
 				[]byte(`"0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"`),
 			},
@@ -125,29 +163,60 @@ func TestEthHashMarshalJSON(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				b, err := json.Marshal(tc.in)
+				b, err := tc.in.MarshalJSON()
 				require.NoError(t, err)
-
-				require.Equal(t, tc.out, b)
+				require.Equal(t, tc.want, b)
 			})
 		}
 	})
 }
 
-func TestEthHashUnmarshalJSON(t *testing.T) {
+func TestEthHash_UnmarshalJSON(t *testing.T) {
+	t.Run("failure", func(t *testing.T) {
+		tcs := []struct {
+			name string
+			in   []byte
+			want string
+		}{
+			{
+				"empty",
+				[]byte{},
+				"",
+			},
+			{
+				"string: empty",
+				[]byte(`""`),
+				"",
+			},
+			{
+				"string: invalid",
+				[]byte(`"0x00"`),
+				"",
+			},
+		}
+
+		for _, tc := range tcs {
+			t.Run(tc.name, func(t *testing.T) {
+				var n nullable.EthHash
+				err := n.UnmarshalJSON(tc.in)
+				require.ErrorContains(t, err, tc.want)
+			})
+		}
+	})
+
 	t.Run("success", func(t *testing.T) {
 		tcs := []struct {
 			name string
 			in   []byte
-			out  nullable.EthHash
+			want nullable.EthHash
 		}{
 			{
 				"null",
-				[]byte("null"),
+				[]byte(`null`),
 				nullable.NewEthHash(ethcommon.Hash{}, false),
 			},
 			{
-				"not null",
+				"string: Bitcoin genesis block",
 				[]byte(`"0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"`),
 				nullable.NewEthHash(ethcommon.HexToHash("0x000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"), true),
 			},
@@ -156,12 +225,10 @@ func TestEthHashUnmarshalJSON(t *testing.T) {
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				var n nullable.EthHash
-				{
-					err := json.Unmarshal(tc.in, &n)
-					require.NoError(t, err)
-				}
-
-				require.Equal(t, tc.out, n)
+				err := n.UnmarshalJSON(tc.in)
+				require.NoError(t, err)
+				require.Equal(t, tc.want.Valid, n.Valid)
+				require.Equal(t, tc.want.EthHash, n.EthHash)
 			})
 		}
 	})
