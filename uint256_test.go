@@ -2,7 +2,9 @@ package nullable_test
 
 import (
 	"bytes"
+	"database/sql"
 	"database/sql/driver"
+	"encoding/json"
 	"math/big"
 	"strings"
 	"testing"
@@ -16,6 +18,14 @@ import (
 var (
 	maxUint256 = new(big.Int).Sub(new(big.Int).Exp(big.NewInt(2), big.NewInt(256), nil), big.NewInt(1))
 )
+
+func TestUint256(t *testing.T) {
+	var n nullable.Uint256
+	require.Implements(t, (*driver.Valuer)(nil), &n)
+	require.Implements(t, (*sql.Scanner)(nil), &n)
+	require.Implements(t, (*json.Marshaler)(nil), &n)
+	require.Implements(t, (*json.Unmarshaler)(nil), &n)
+}
 
 func TestUint256_NullableString(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
