@@ -1,4 +1,4 @@
-module github.com/m0t0k1ch1-go/nullable/v2
+module github.com/m0t0k1ch1-go/nullable/v3
 
 go 1.24.0
 
