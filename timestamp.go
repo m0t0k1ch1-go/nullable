@@ -70,7 +70,7 @@ func (n Timestamp) MarshalJSON() ([]byte, error) {
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-// It accepts the JSON encoding of timeutil.Timestamp, or null.
+// It accepts any JSON value supported by timeutil.Timestamp, or null.
 func (n *Timestamp) UnmarshalJSON(b []byte) error {
 	if bytes.Equal(b, []byte("null")) {
 		n.Timestamp, n.Valid = timeutil.Timestamp{}, false

@@ -70,7 +70,7 @@ func (n Uint256) MarshalJSON() ([]byte, error) {
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-// It accepts the JSON encoding of bigutil.Uint256, or null.
+// It accepts any JSON value supported by bigutil.Uint256, or null.
 func (n *Uint256) UnmarshalJSON(b []byte) error {
 	if bytes.Equal(b, []byte("null")) {
 		n.Uint256, n.Valid = bigutil.Uint256{}, false
