@@ -60,7 +60,7 @@ func (n *Timestamp) Scan(src any) error {
 }
 
 // MarshalJSON implements json.Marshaler.
-// It returns the value as the JSON encoding of timeutil.Timestamp, or null if invalid.
+// It returns the JSON encoding of timeutil.Timestamp, or null if invalid.
 func (n Timestamp) MarshalJSON() ([]byte, error) {
 	if !n.Valid {
 		return []byte("null"), nil

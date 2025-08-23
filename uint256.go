@@ -60,7 +60,7 @@ func (n *Uint256) Scan(src any) error {
 }
 
 // MarshalJSON implements json.Marshaler.
-// It returns the value as the JSON encoding of bigutil.Uint256, or null if invalid.
+// It returns the JSON encoding of bigutil.Uint256, or null if invalid.
 func (n Uint256) MarshalJSON() ([]byte, error) {
 	if !n.Valid {
 		return []byte("null"), nil
