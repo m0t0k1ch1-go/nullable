@@ -42,7 +42,7 @@ func (n Timestamp) Value() (driver.Value, error) {
 }
 
 // Scan implements sql.Scanner.
-// It accepts a value supported by timeutil.Timestamp.Scan, or nil.
+// It accepts any value supported by timeutil.Timestamp.Scan, or nil.
 func (n *Timestamp) Scan(src any) error {
 	if src == nil {
 		n.Timestamp, n.Valid = timeutil.Timestamp{}, false

@@ -42,7 +42,7 @@ func (n Uint256) Value() (driver.Value, error) {
 }
 
 // Scan implements sql.Scanner.
-// It accepts a value supported by bigutil.Uint256.Scan, or nil.
+// It accepts any value supported by bigutil.Uint256.Scan, or nil.
 func (n *Uint256) Scan(src any) error {
 	if src == nil {
 		n.Uint256, n.Valid = bigutil.Uint256{}, false
