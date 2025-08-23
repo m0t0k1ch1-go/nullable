@@ -21,8 +21,8 @@ func NewBool(b bool, valid bool) Bool {
 	}
 }
 
-// NewBoolFromBoolPtr returns a new Bool from a bool pointer.
-// A nil pointer is treated as invalid.
+// NewBoolFromBoolPtr returns a new Bool from a *bool.
+// It captures the value at call time; a nil pointer is treated as invalid.
 func NewBoolFromBoolPtr(b *bool) Bool {
 	if b == nil {
 		return NewBool(false, false)
@@ -31,7 +31,7 @@ func NewBoolFromBoolPtr(b *bool) Bool {
 	return NewBool(*b, true)
 }
 
-// BoolPtr returns the value as a bool pointer, or nil if invalid.
+// BoolPtr returns the value as a *bool, or nil if invalid.
 // The pointer refers to a copy.
 func (n Bool) BoolPtr() *bool {
 	if !n.Valid {

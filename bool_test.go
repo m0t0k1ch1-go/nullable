@@ -1,12 +1,23 @@
 package nullable_test
 
 import (
+	"database/sql"
+	"database/sql/driver"
+	"encoding/json"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 
 	"github.com/m0t0k1ch1-go/nullable/v2"
 )
+
+func TestBool(t *testing.T) {
+	var n nullable.Bool
+	require.Implements(t, (*driver.Valuer)(nil), &n)
+	require.Implements(t, (*sql.Scanner)(nil), &n)
+	require.Implements(t, (*json.Marshaler)(nil), &n)
+	require.Implements(t, (*json.Unmarshaler)(nil), &n)
+}
 
 func TestNewBoolFromBoolPtr(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
@@ -40,6 +51,16 @@ func TestNewBoolFromBoolPtr(t *testing.T) {
 			})
 		}
 	})
+
+	t.Run("success: captures value at call time", func(t *testing.T) {
+		b := ptr(true)
+		n := nullable.NewBoolFromBoolPtr(b)
+
+		*b = false
+
+		require.True(t, n.Valid)
+		require.True(t, n.Bool)
+	})
 }
 
 func TestBool_BoolPtr(t *testing.T) {
@@ -68,18 +89,20 @@ func TestBool_BoolPtr(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				n := tc.in
-				p := n.BoolPtr()
-				require.Equal(t, tc.want, p)
-
-				if p != nil {
-					*p = !tc.in.Bool
-
-					require.Equal(t, tc.in.Valid, n.Valid)
-					require.Equal(t, tc.in.Bool, n.Bool)
-				}
+				b := tc.in.BoolPtr()
+				require.Equal(t, tc.want, b)
 			})
 		}
+	})
+
+	t.Run("success: pointer refers to a copy", func(t *testing.T) {
+		n := nullable.NewBool(true, true)
+		b := n.BoolPtr()
+
+		*b = false
+
+		require.True(t, n.Valid)
+		require.True(t, n.Bool)
 	})
 }
 
