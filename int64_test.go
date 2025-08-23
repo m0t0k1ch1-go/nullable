@@ -169,6 +169,16 @@ func TestInt64_UnmarshalJSON(t *testing.T) {
 				"",
 			},
 			{
+				"number: min - 1",
+				[]byte(`-9223372036854775809`),
+				"",
+			},
+			{
+				"number: max + 1",
+				[]byte(`9223372036854775808`),
+				"",
+			},
+			{
 				"string",
 				[]byte(`"0"`),
 				"",
