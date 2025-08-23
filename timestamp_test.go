@@ -1,6 +1,7 @@
 package nullable_test
 
 import (
+	"database/sql"
 	"database/sql/driver"
 	"encoding/json"
 	"testing"
@@ -11,6 +12,14 @@ import (
 
 	"github.com/m0t0k1ch1-go/nullable/v2"
 )
+
+func TestTimestamp(t *testing.T) {
+	var n nullable.Timestamp
+	require.Implements(t, (*driver.Valuer)(nil), &n)
+	require.Implements(t, (*sql.Scanner)(nil), &n)
+	require.Implements(t, (*json.Marshaler)(nil), &n)
+	require.Implements(t, (*json.Unmarshaler)(nil), &n)
+}
 
 func TestTimestampNullableString(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
