@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.yaml.in/yaml/v3"
 
-	"github.com/m0t0k1ch1-go/nullable/v2"
+	"github.com/m0t0k1ch1-go/nullable/v3"
 )
 
 func TestString(t *testing.T) {

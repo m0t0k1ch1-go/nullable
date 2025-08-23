@@ -12,7 +12,7 @@ import (
 	"github.com/m0t0k1ch1-go/bigutil/v3"
 	"github.com/stretchr/testify/require"
 
-	"github.com/m0t0k1ch1-go/nullable/v2"
+	"github.com/m0t0k1ch1-go/nullable/v3"
 )
 
 var (
