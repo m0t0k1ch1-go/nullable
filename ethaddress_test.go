@@ -79,7 +79,7 @@ func TestEthAddress_Value(t *testing.T) {
 	})
 }
 
-func TestEthAddressScan(t *testing.T) {
+func TestEthAddress_Scan(t *testing.T) {
 	t.Run("failure", func(t *testing.T) {
 		tcs := []struct {
 			name string
