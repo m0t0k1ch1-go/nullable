@@ -113,8 +113,18 @@ func TestUint256_Scan(t *testing.T) {
 			want string
 		}{
 			{
+				"int64",
+				int64(0),
+				"",
+			},
+			{
 				"[]byte: empty",
 				[]byte{},
+				"",
+			},
+			{
+				"[]byte: exceeds 256 bits",
+				append([]byte{0x01}, bytes.Repeat([]byte{0x00}, 32)...),
 				"",
 			},
 		}
@@ -178,7 +188,7 @@ func TestUint256_MarshalJSON(t *testing.T) {
 			{
 				"null",
 				nullable.NewUint256(bigutil.Uint256{}, false),
-				[]byte("null"),
+				[]byte(`null`),
 			},
 			{
 				"zero",
@@ -208,6 +218,83 @@ func TestUint256_MarshalJSON(t *testing.T) {
 }
 
 func TestUint256_UnmarshalJSON(t *testing.T) {
+	t.Run("failure", func(t *testing.T) {
+		tcs := []struct {
+			name string
+			in   []byte
+			want string
+		}{
+			{
+				"empty",
+				[]byte{},
+				"",
+			},
+			{
+				"number: negative",
+				[]byte(`-1`),
+				"",
+			},
+			{
+				"number: exceeds 256 bits",
+				[]byte(`115792089237316195423570985008687907853269984665640564039457584007913129639936`),
+				"",
+			},
+			{
+				"number: fractional",
+				[]byte(`0.0`),
+				"",
+			},
+			{
+				"number: exponential",
+				[]byte(`0e0`),
+				"",
+			},
+			{
+				"string: empty",
+				[]byte(`""`),
+				"",
+			},
+			{
+				"string: invalid decimal",
+				[]byte(`"invalid"`),
+				"",
+			},
+			{
+				"string: negative decimal",
+				[]byte(`"-1"`),
+				"",
+			},
+			{
+				"string: missing hex digits after 0x prefix",
+				[]byte(`"0x"`),
+				"",
+			},
+			{
+				"string: hex contains invalid escape sequences",
+				[]byte(`"0x\x"`),
+				"",
+			},
+			{
+				"string: hex contains non-hex characters",
+				[]byte(`"0xg"`),
+				"",
+			},
+			{
+				"string: hex exceeds 256 bits",
+				[]byte(`"0x1` + strings.Repeat("0", 64) + `"`),
+				"",
+			},
+		}
+
+		for _, tc := range tcs {
+			t.Run(tc.name, func(t *testing.T) {
+				var x256 bigutil.Uint256
+				err := x256.UnmarshalJSON(tc.in)
+				require.ErrorContains(t, err, tc.want)
+			})
+		}
+	})
+
 	t.Run("success", func(t *testing.T) {
 		tcs := []struct {
 			name string
