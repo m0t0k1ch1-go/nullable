@@ -173,6 +173,11 @@ func TestUint64_Scan(t *testing.T) {
 				[]byte("invalid"),
 				"invalid source",
 			},
+			{
+				"[]byte: max + 1",
+				[]byte(`18446744073709551616`),
+				"invalid source",
+			},
 		}
 
 		for _, tc := range tcs {
@@ -303,12 +308,22 @@ func TestUint64_UnmarshalJSON(t *testing.T) {
 			{
 				"boolean",
 				[]byte(`true`),
-				"",
+				"invalid json number",
+			},
+			{
+				"number: negative",
+				[]byte(`-1`),
+				"invalid json number",
+			},
+			{
+				"number: max + 1",
+				[]byte(`18446744073709551616`),
+				"invalid json number",
 			},
 			{
 				"string",
 				[]byte(`"0"`),
-				"",
+				"invalid json number",
 			},
 		}
 

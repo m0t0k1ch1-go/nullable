@@ -121,7 +121,7 @@ func (n *Uint64) UnmarshalJSON(b []byte) error {
 	}
 
 	if err := json.Unmarshal(b, &n.Uint64); err != nil {
-		return err
+		return fmt.Errorf("invalid json number: %w", err)
 	}
 
 	n.Valid = true
