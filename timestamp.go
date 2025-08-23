@@ -32,7 +32,7 @@ func (n Timestamp) NullableString() String {
 }
 
 // Value implements driver.Valuer.
-// It returns the driver.Value representation of timeutil.Timestamp, or nil if invalid.
+// It returns the driver.Value returned by timeutil.Timestamp.Value, or nil if invalid.
 func (n Timestamp) Value() (driver.Value, error) {
 	if !n.Valid {
 		return nil, nil

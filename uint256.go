@@ -32,7 +32,7 @@ func (n Uint256) NullableString() String {
 }
 
 // Value implements driver.Valuer.
-// It returns the driver.Value representation of bigutil.Uint256, or nil if invalid.
+// It returns the driver.Value returned by bigutil.Uint256.Value, or nil if invalid.
 func (n Uint256) Value() (driver.Value, error) {
 	if !n.Valid {
 		return nil, nil
