@@ -33,14 +33,14 @@ func TestNewInt64FromInt64Ptr(t *testing.T) {
 				nullable.NewInt64(0, false),
 			},
 			{
-				"min",
-				ptr(int64(math.MinInt64)),
-				nullable.NewInt64(math.MinInt64, true),
-			},
-			{
 				"zero",
 				ptr(int64(0)),
 				nullable.NewInt64(0, true),
+			},
+			{
+				"min",
+				ptr(int64(math.MinInt64)),
+				nullable.NewInt64(math.MinInt64, true),
 			},
 			{
 				"max",
@@ -82,14 +82,14 @@ func TestInt64_Int64Ptr(t *testing.T) {
 				nil,
 			},
 			{
-				"min",
-				nullable.NewInt64(math.MinInt64, true),
-				ptr(int64(math.MinInt64)),
-			},
-			{
 				"zero",
 				nullable.NewInt64(0, true),
 				ptr(int64(0)),
+			},
+			{
+				"min",
+				nullable.NewInt64(math.MinInt64, true),
+				ptr(int64(math.MinInt64)),
 			},
 			{
 				"max",
@@ -130,14 +130,14 @@ func TestInt64_MarshalJSON(t *testing.T) {
 				[]byte(`null`),
 			},
 			{
-				"min",
-				nullable.NewInt64(math.MinInt64, true),
-				[]byte(`-9223372036854775808`),
-			},
-			{
 				"zero",
 				nullable.NewInt64(0, true),
 				[]byte(`0`),
+			},
+			{
+				"min",
+				nullable.NewInt64(math.MinInt64, true),
+				[]byte(`-9223372036854775808`),
 			},
 			{
 				"max",
@@ -196,14 +196,14 @@ func TestInt64_UnmarshalJSON(t *testing.T) {
 				nullable.NewInt64(0, false),
 			},
 			{
-				"number: min",
-				[]byte(`-9223372036854775808`),
-				nullable.NewInt64(math.MinInt64, true),
-			},
-			{
 				"number: zero",
 				[]byte(`0`),
 				nullable.NewInt64(0, true),
+			},
+			{
+				"number: min",
+				[]byte(`-9223372036854775808`),
+				nullable.NewInt64(math.MinInt64, true),
 			},
 			{
 				"number: max",
