@@ -47,6 +47,16 @@ func TestNewUint64FromUint64Ptr(t *testing.T) {
 			})
 		}
 	})
+
+	t.Run("success: captures value at call time", func(t *testing.T) {
+		i := ptr(uint64(1))
+		n := nullable.NewUint64FromUint64Ptr(i)
+
+		*i = 0
+
+		require.True(t, n.Valid)
+		require.Equal(t, uint64(1), n.Uint64)
+	})
 }
 
 func TestUint64_Uint64Ptr(t *testing.T) {
@@ -80,18 +90,20 @@ func TestUint64_Uint64Ptr(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				n := tc.in
-				p := n.Uint64Ptr()
-				require.Equal(t, tc.want, p)
-
-				if p != nil {
-					*p = math.MaxUint8
-
-					require.Equal(t, tc.in.Valid, n.Valid)
-					require.Equal(t, tc.in.Uint64, n.Uint64)
-				}
+				i := tc.in.Uint64Ptr()
+				require.Equal(t, tc.want, i)
 			})
 		}
+	})
+
+	t.Run("success: pointer refers to a copy", func(t *testing.T) {
+		n := nullable.NewUint64(1, true)
+		i := n.Uint64Ptr()
+
+		*i = 0
+
+		require.True(t, n.Valid)
+		require.Equal(t, uint64(1), n.Uint64)
 	})
 }
 

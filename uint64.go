@@ -23,8 +23,8 @@ func NewUint64(i uint64, valid bool) Uint64 {
 	}
 }
 
-// NewUint64FromUint64Ptr returns a new Uint64 from a uint64 pointer.
-// A nil pointer is treated as invalid.
+// NewUint64FromUint64Ptr returns a new Uint64 from a *uint64.
+// It captures the value at call time; a nil pointer is treated as invalid.
 func NewUint64FromUint64Ptr(i *uint64) Uint64 {
 	if i == nil {
 		return NewUint64(0, false)
@@ -33,7 +33,7 @@ func NewUint64FromUint64Ptr(i *uint64) Uint64 {
 	return NewUint64(*i, true)
 }
 
-// Uint64Ptr returns the value as a uint64 pointer, or nil if invalid.
+// Uint64Ptr returns the value as a *uint64, or nil if invalid.
 // The pointer refers to a copy.
 func (n Uint64) Uint64Ptr() *uint64 {
 	if !n.Valid {
