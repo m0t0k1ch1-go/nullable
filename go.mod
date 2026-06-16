@@ -4,7 +4,7 @@ go 1.26
 
 require (
 	github.com/ethereum/go-ethereum v1.17.3
-	github.com/m0t0k1ch1-go/bigutil/v3 v3.9.0
+	github.com/m0t0k1ch1-go/bigutil/v3 v3.9.1
 	github.com/m0t0k1ch1-go/timeutil/v5 v5.2.0
 	github.com/stretchr/testify v1.11.1
 	go.yaml.in/yaml/v3 v3.0.4
