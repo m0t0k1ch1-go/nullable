@@ -36,12 +36,12 @@ func TestNewStringFromStringPtr(t *testing.T) {
 			},
 			{
 				"empty",
-				ptr(""),
+				new(""),
 				nullable.NewString("", true),
 			},
 			{
 				"non-empty",
-				ptr("non-empty"),
+				new("non-empty"),
 				nullable.NewString("non-empty", true),
 			},
 		}
@@ -56,7 +56,7 @@ func TestNewStringFromStringPtr(t *testing.T) {
 	})
 
 	t.Run("success: captures value at call time", func(t *testing.T) {
-		s := ptr("non-empty")
+		s := new("non-empty")
 		n := nullable.NewStringFromStringPtr(s)
 
 		*s = ""
@@ -81,12 +81,12 @@ func TestString_StringPtr(t *testing.T) {
 			{
 				"empty",
 				nullable.NewString("", true),
-				ptr(""),
+				new(""),
 			},
 			{
 				"non-empty",
 				nullable.NewString("non-empty", true),
-				ptr("non-empty"),
+				new("non-empty"),
 			},
 		}
 
