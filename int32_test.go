@@ -34,17 +34,17 @@ func TestNewInt32FromInt32Ptr(t *testing.T) {
 			},
 			{
 				"zero",
-				ptr(int32(0)),
+				new(int32(0)),
 				nullable.NewInt32(0, true),
 			},
 			{
 				"min",
-				ptr(int32(math.MinInt32)),
+				new(int32(math.MinInt32)),
 				nullable.NewInt32(math.MinInt32, true),
 			},
 			{
 				"max",
-				ptr(int32(math.MaxInt32)),
+				new(int32(math.MaxInt32)),
 				nullable.NewInt32(math.MaxInt32, true),
 			},
 		}
@@ -59,7 +59,7 @@ func TestNewInt32FromInt32Ptr(t *testing.T) {
 	})
 
 	t.Run("success: captures value at call time", func(t *testing.T) {
-		i := ptr(int32(1))
+		i := new(int32(1))
 		n := nullable.NewInt32FromInt32Ptr(i)
 
 		*i = 0
@@ -84,17 +84,17 @@ func TestInt32_Int32Ptr(t *testing.T) {
 			{
 				"zero",
 				nullable.NewInt32(0, true),
-				ptr(int32(0)),
+				new(int32(0)),
 			},
 			{
 				"min",
 				nullable.NewInt32(math.MinInt32, true),
-				ptr(int32(math.MinInt32)),
+				new(int32(math.MinInt32)),
 			},
 			{
 				"max",
 				nullable.NewInt32(math.MaxInt32, true),
-				ptr(int32(math.MaxInt32)),
+				new(int32(math.MaxInt32)),
 			},
 		}
 

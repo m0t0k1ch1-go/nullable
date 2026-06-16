@@ -33,12 +33,12 @@ func TestNewBoolFromBoolPtr(t *testing.T) {
 			},
 			{
 				"true",
-				ptr(true),
+				new(true),
 				nullable.NewBool(true, true),
 			},
 			{
 				"false",
-				ptr(false),
+				new(false),
 				nullable.NewBool(false, true),
 			},
 		}
@@ -53,7 +53,7 @@ func TestNewBoolFromBoolPtr(t *testing.T) {
 	})
 
 	t.Run("success: captures value at call time", func(t *testing.T) {
-		b := ptr(true)
+		b := new(true)
 		n := nullable.NewBoolFromBoolPtr(b)
 
 		*b = false
@@ -78,12 +78,12 @@ func TestBool_BoolPtr(t *testing.T) {
 			{
 				"true",
 				nullable.NewBool(true, true),
-				ptr(true),
+				new(true),
 			},
 			{
 				"false",
 				nullable.NewBool(false, true),
-				ptr(false),
+				new(false),
 			},
 		}
 

@@ -24,17 +24,17 @@ func TestNewUint64FromUint64Ptr(t *testing.T) {
 			},
 			{
 				"zero",
-				ptr(uint64(0)),
+				new(uint64(0)),
 				nullable.NewUint64(0, true),
 			},
 			{
 				"one",
-				ptr(uint64(1)),
+				new(uint64(1)),
 				nullable.NewUint64(1, true),
 			},
 			{
 				"max",
-				ptr(uint64(math.MaxUint64)),
+				new(uint64(math.MaxUint64)),
 				nullable.NewUint64(math.MaxUint64, true),
 			},
 		}
@@ -49,7 +49,7 @@ func TestNewUint64FromUint64Ptr(t *testing.T) {
 	})
 
 	t.Run("success: captures value at call time", func(t *testing.T) {
-		i := ptr(uint64(1))
+		i := new(uint64(1))
 		n := nullable.NewUint64FromUint64Ptr(i)
 
 		*i = 0
@@ -74,17 +74,17 @@ func TestUint64_Uint64Ptr(t *testing.T) {
 			{
 				"zero",
 				nullable.NewUint64(0, true),
-				ptr(uint64(0)),
+				new(uint64(0)),
 			},
 			{
 				"one",
 				nullable.NewUint64(1, true),
-				ptr(uint64(1)),
+				new(uint64(1)),
 			},
 			{
 				"max",
 				nullable.NewUint64(math.MaxUint64, true),
-				ptr(uint64(math.MaxUint64)),
+				new(uint64(math.MaxUint64)),
 			},
 		}
 

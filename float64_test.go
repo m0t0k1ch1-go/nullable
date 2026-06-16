@@ -34,22 +34,22 @@ func TestNewFloat64FromFloat64Ptr(t *testing.T) {
 			},
 			{
 				"zero",
-				ptr(float64(0)),
+				new(float64(0)),
 				nullable.NewFloat64(0, true),
 			},
 			{
 				"smallest non-zero",
-				ptr(math.SmallestNonzeroFloat64),
+				new(math.SmallestNonzeroFloat64),
 				nullable.NewFloat64(math.SmallestNonzeroFloat64, true),
 			},
 			{
 				"min",
-				ptr(-math.MaxFloat64),
+				new(-math.MaxFloat64),
 				nullable.NewFloat64(-math.MaxFloat64, true),
 			},
 			{
 				"max",
-				ptr(math.MaxFloat64),
+				new(math.MaxFloat64),
 				nullable.NewFloat64(math.MaxFloat64, true),
 			},
 		}
@@ -64,7 +64,7 @@ func TestNewFloat64FromFloat64Ptr(t *testing.T) {
 	})
 
 	t.Run("success: captures value at call time", func(t *testing.T) {
-		f := ptr(math.Phi)
+		f := new(math.Phi)
 		n := nullable.NewFloat64FromFloat64Ptr(f)
 
 		*f = 0
@@ -89,22 +89,22 @@ func TestFloat64_Float64Ptr(t *testing.T) {
 			{
 				"zero",
 				nullable.NewFloat64(0, true),
-				ptr(float64(0)),
+				new(float64(0)),
 			},
 			{
 				"smallest non-zero",
 				nullable.NewFloat64(math.SmallestNonzeroFloat64, true),
-				ptr(math.SmallestNonzeroFloat64),
+				new(math.SmallestNonzeroFloat64),
 			},
 			{
 				"min",
 				nullable.NewFloat64(-math.MaxFloat64, true),
-				ptr(-math.MaxFloat64),
+				new(-math.MaxFloat64),
 			},
 			{
 				"max",
 				nullable.NewFloat64(math.MaxFloat64, true),
-				ptr(math.MaxFloat64),
+				new(math.MaxFloat64),
 			},
 		}
 
