@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/m0t0k1ch1-go/sqlutil/v3"
+	"github.com/m0t0k1ch1-go/urlutil"
 	"github.com/stretchr/testify/require"
 
 	"github.com/m0t0k1ch1-go/nullable/v3"
@@ -29,17 +29,17 @@ func TestHTTPURL_NullableString(t *testing.T) {
 		}{
 			{
 				"null",
-				nullable.NewHTTPURL(sqlutil.HTTPURL{}, false),
+				nullable.NewHTTPURL(urlutil.HTTPURL{}, false),
 				nullable.NewString("", false),
 			},
 			{
 				"http",
-				nullable.NewHTTPURL(sqlutil.MustNewHTTPURLFromString("http://m0t0k1ch1.com"), true),
+				nullable.NewHTTPURL(urlutil.MustNewHTTPURLFromString("http://m0t0k1ch1.com"), true),
 				nullable.NewString("http://m0t0k1ch1.com", true),
 			},
 			{
 				"https",
-				nullable.NewHTTPURL(sqlutil.MustNewHTTPURLFromString("https://m0t0k1ch1.com"), true),
+				nullable.NewHTTPURL(urlutil.MustNewHTTPURLFromString("https://m0t0k1ch1.com"), true),
 				nullable.NewString("https://m0t0k1ch1.com", true),
 			},
 		}
@@ -63,17 +63,17 @@ func TestHTTPURL_Value(t *testing.T) {
 		}{
 			{
 				"null",
-				nullable.NewHTTPURL(sqlutil.HTTPURL{}, false),
+				nullable.NewHTTPURL(urlutil.HTTPURL{}, false),
 				nil,
 			},
 			{
 				"http",
-				nullable.NewHTTPURL(sqlutil.MustNewHTTPURLFromString("http://m0t0k1ch1.com"), true),
+				nullable.NewHTTPURL(urlutil.MustNewHTTPURLFromString("http://m0t0k1ch1.com"), true),
 				"http://m0t0k1ch1.com",
 			},
 			{
 				"https",
-				nullable.NewHTTPURL(sqlutil.MustNewHTTPURLFromString("https://m0t0k1ch1.com"), true),
+				nullable.NewHTTPURL(urlutil.MustNewHTTPURLFromString("https://m0t0k1ch1.com"), true),
 				"https://m0t0k1ch1.com",
 			},
 		}
@@ -140,17 +140,17 @@ func TestHTTPURL_Scan(t *testing.T) {
 			{
 				"nil",
 				nil,
-				nullable.NewHTTPURL(sqlutil.HTTPURL{}, false),
+				nullable.NewHTTPURL(urlutil.HTTPURL{}, false),
 			},
 			{
 				"string: http",
 				"http://m0t0k1ch1.com",
-				nullable.NewHTTPURL(sqlutil.MustNewHTTPURLFromString("http://m0t0k1ch1.com"), true),
+				nullable.NewHTTPURL(urlutil.MustNewHTTPURLFromString("http://m0t0k1ch1.com"), true),
 			},
 			{
 				"[]byte: https",
 				[]byte("https://m0t0k1ch1.com"),
-				nullable.NewHTTPURL(sqlutil.MustNewHTTPURLFromString("https://m0t0k1ch1.com"), true),
+				nullable.NewHTTPURL(urlutil.MustNewHTTPURLFromString("https://m0t0k1ch1.com"), true),
 			},
 		}
 
@@ -175,17 +175,17 @@ func TestHTTPURL_MarshalJSON(t *testing.T) {
 		}{
 			{
 				"null",
-				nullable.NewHTTPURL(sqlutil.HTTPURL{}, false),
+				nullable.NewHTTPURL(urlutil.HTTPURL{}, false),
 				[]byte(`null`),
 			},
 			{
 				"http",
-				nullable.NewHTTPURL(sqlutil.MustNewHTTPURLFromString("http://m0t0k1ch1.com"), true),
+				nullable.NewHTTPURL(urlutil.MustNewHTTPURLFromString("http://m0t0k1ch1.com"), true),
 				[]byte(`"http://m0t0k1ch1.com"`),
 			},
 			{
 				"https",
-				nullable.NewHTTPURL(sqlutil.MustNewHTTPURLFromString("https://m0t0k1ch1.com"), true),
+				nullable.NewHTTPURL(urlutil.MustNewHTTPURLFromString("https://m0t0k1ch1.com"), true),
 				[]byte(`"https://m0t0k1ch1.com"`),
 			},
 		}
@@ -252,17 +252,17 @@ func TestHTTPURL_UnmarshalJSON(t *testing.T) {
 			{
 				"null",
 				[]byte(`null`),
-				nullable.NewHTTPURL(sqlutil.HTTPURL{}, false),
+				nullable.NewHTTPURL(urlutil.HTTPURL{}, false),
 			},
 			{
 				"http",
 				[]byte(`"http://m0t0k1ch1.com"`),
-				nullable.NewHTTPURL(sqlutil.MustNewHTTPURLFromString("http://m0t0k1ch1.com"), true),
+				nullable.NewHTTPURL(urlutil.MustNewHTTPURLFromString("http://m0t0k1ch1.com"), true),
 			},
 			{
 				"https",
 				[]byte(`"https://m0t0k1ch1.com"`),
-				nullable.NewHTTPURL(sqlutil.MustNewHTTPURLFromString("https://m0t0k1ch1.com"), true),
+				nullable.NewHTTPURL(urlutil.MustNewHTTPURLFromString("https://m0t0k1ch1.com"), true),
 			},
 		}
 

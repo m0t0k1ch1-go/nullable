@@ -5,17 +5,17 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 
-	"github.com/m0t0k1ch1-go/sqlutil/v3"
+	"github.com/m0t0k1ch1-go/urlutil"
 )
 
-// HTTPURL represents a nullable sqlutil.HTTPURL.
+// HTTPURL represents a nullable urlutil.HTTPURL.
 type HTTPURL struct {
-	HTTPURL sqlutil.HTTPURL
+	HTTPURL urlutil.HTTPURL
 	Valid   bool
 }
 
 // NewHTTPURL returns a new HTTPURL.
-func NewHTTPURL(hu sqlutil.HTTPURL, valid bool) HTTPURL {
+func NewHTTPURL(hu urlutil.HTTPURL, valid bool) HTTPURL {
 	return HTTPURL{
 		HTTPURL: hu,
 		Valid:   valid,
@@ -32,7 +32,7 @@ func (n HTTPURL) NullableString() String {
 }
 
 // Value implements driver.Valuer.
-// It returns the driver.Value returned by sqlutil.HTTPURL.Value, or nil if invalid.
+// It returns the driver.Value returned by urlutil.HTTPURL.Value, or nil if invalid.
 func (n HTTPURL) Value() (driver.Value, error) {
 	if !n.Valid {
 		return nil, nil
@@ -42,10 +42,10 @@ func (n HTTPURL) Value() (driver.Value, error) {
 }
 
 // Scan implements sql.Scanner.
-// It accepts any value supported by sqlutil.HTTPURL.Scan, or nil.
+// It accepts any value supported by urlutil.HTTPURL.Scan, or nil.
 func (n *HTTPURL) Scan(src any) error {
 	if src == nil {
-		n.HTTPURL, n.Valid = sqlutil.HTTPURL{}, false
+		n.HTTPURL, n.Valid = urlutil.HTTPURL{}, false
 
 		return nil
 	}
@@ -60,7 +60,7 @@ func (n *HTTPURL) Scan(src any) error {
 }
 
 // MarshalJSON implements json.Marshaler.
-// It returns the JSON encoding of sqlutil.HTTPURL, or null if invalid.
+// It returns the JSON encoding of urlutil.HTTPURL, or null if invalid.
 func (n HTTPURL) MarshalJSON() ([]byte, error) {
 	if !n.Valid {
 		return []byte("null"), nil
@@ -70,10 +70,10 @@ func (n HTTPURL) MarshalJSON() ([]byte, error) {
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-// It accepts the JSON value supported by sqlutil.HTTPURL, or null.
+// It accepts the JSON value supported by urlutil.HTTPURL, or null.
 func (n *HTTPURL) UnmarshalJSON(b []byte) error {
 	if bytes.Equal(b, []byte("null")) {
-		n.HTTPURL, n.Valid = sqlutil.HTTPURL{}, false
+		n.HTTPURL, n.Valid = urlutil.HTTPURL{}, false
 
 		return nil
 	}
