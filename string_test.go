@@ -3,7 +3,7 @@ package nullable_test
 import (
 	"database/sql"
 	"database/sql/driver"
-	"encoding/json"
+	"encoding/json/v2"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -16,8 +16,10 @@ func TestString(t *testing.T) {
 	var n nullable.String
 	require.Implements(t, (*driver.Valuer)(nil), &n)
 	require.Implements(t, (*sql.Scanner)(nil), &n)
+	require.Implements(t, (*json.MarshalerTo)(nil), &n)
 	require.Implements(t, (*json.Marshaler)(nil), &n)
 	require.Implements(t, (*yaml.Marshaler)(nil), &n)
+	require.Implements(t, (*json.UnmarshalerFrom)(nil), &n)
 	require.Implements(t, (*json.Unmarshaler)(nil), &n)
 	require.Implements(t, (*yaml.Unmarshaler)(nil), &n)
 }
