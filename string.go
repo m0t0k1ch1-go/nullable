@@ -54,7 +54,7 @@ func (n String) StringPtr() *string {
 }
 
 // MarshalJSONTo implements [json.MarshalerTo].
-// It encodes n as a quoted string (or null if n is invalid) and writes it to enc.
+// It encodes n as a quoted string (or as the unquoted string null if n is invalid) and writes it to enc.
 func (n String) MarshalJSONTo(enc *jsontext.Encoder) error {
 	if !n.Valid {
 		return enc.WriteToken(jsontext.Null)
@@ -80,7 +80,7 @@ func (n String) MarshalYAML() (any, error) {
 }
 
 // UnmarshalJSONFrom implements [json.UnmarshalerFrom].
-// It decodes a quoted string or null from dec into n; null makes n invalid.
+// It decodes a quoted string or the unquoted string null from dec into n; the latter makes n invalid.
 func (n *String) UnmarshalJSONFrom(dec *jsontext.Decoder) error {
 	switch k := dec.PeekKind(); k {
 	case jsontext.KindString:
