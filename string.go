@@ -1,30 +1,41 @@
 package nullable
 
 import (
-	"bytes"
 	"database/sql"
-	"encoding/json"
+	"database/sql/driver"
+	"encoding/json/jsontext"
+	"encoding/json/v2"
+	"fmt"
 
 	"go.yaml.in/yaml/v3"
 )
 
-// String represents a nullable string wrapping sql.NullString.
+var (
+	_ driver.Valuer        = String{}
+	_ sql.Scanner          = &String{}
+	_ json.MarshalerTo     = String{}
+	_ json.Marshaler       = String{}
+	_ yaml.Marshaler       = String{}
+	_ json.UnmarshalerFrom = &String{}
+	_ json.Unmarshaler     = &String{}
+	_ yaml.Unmarshaler     = &String{}
+)
+
+// String represents a nullable string.
 type String struct {
 	sql.NullString
 }
 
-// NewString returns a new String.
+// NewString returns a new [String].
 func NewString(s string, valid bool) String {
 	return String{
-		sql.NullString{
-			String: s,
-			Valid:  valid,
-		},
+		String: s,
+		Valid:  valid,
 	}
 }
 
-// NewStringFromStringPtr returns a new String from a *string.
-// It captures the value at call time; a nil pointer is treated as invalid.
+// NewStringFromStringPtr returns a new [String] from a string pointer.
+// It returns an invalid [String] if s is nil.
 func NewStringFromStringPtr(s *string) String {
 	if s == nil {
 		return NewString("", false)
@@ -33,8 +44,7 @@ func NewStringFromStringPtr(s *string) String {
 	return NewString(*s, true)
 }
 
-// StringPtr returns the value as a *string, or nil if invalid.
-// The pointer refers to a copy.
+// StringPtr returns a pointer to a copy of the underlying string, or nil if n is invalid.
 func (n String) StringPtr() *string {
 	if !n.Valid {
 		return nil
@@ -43,18 +53,24 @@ func (n String) StringPtr() *string {
 	return &n.String
 }
 
-// MarshalJSON implements json.Marshaler.
-// It returns the value as a JSON string, or null if invalid.
-func (n String) MarshalJSON() ([]byte, error) {
+// MarshalJSONTo implements [json.MarshalerTo].
+// It encodes n as a quoted string (or as the unquoted string null if n is invalid) and writes it to enc.
+func (n String) MarshalJSONTo(enc *jsontext.Encoder) error {
 	if !n.Valid {
-		return []byte("null"), nil
+		return enc.WriteToken(jsontext.Null)
 	}
 
-	return json.Marshal(n.String)
+	return json.MarshalEncode(enc, n.String)
 }
 
-// MarshalYAML implements yaml.Marshaler.
-// It returns the value as a string, or nil if invalid.
+// MarshalJSON implements [json.Marshaler].
+// It is like [String.MarshalJSONTo] but returns the encoded bytes instead of writing them to a [jsontext.Encoder].
+func (n String) MarshalJSON() ([]byte, error) {
+	return json.Marshal(n)
+}
+
+// MarshalYAML implements [yaml.Marshaler].
+// It encodes n as a string (or nil if n is invalid).
 func (n String) MarshalYAML() (any, error) {
 	if !n.Valid {
 		return nil, nil
@@ -63,39 +79,56 @@ func (n String) MarshalYAML() (any, error) {
 	return n.String, nil
 }
 
-// UnmarshalJSON implements json.Unmarshaler.
-// It accepts a JSON string or null.
-func (n *String) UnmarshalJSON(b []byte) error {
-	if bytes.Equal(b, []byte("null")) {
+// UnmarshalJSONFrom implements [json.UnmarshalerFrom].
+// It decodes a quoted string or the unquoted string null from dec into n; the latter makes n invalid.
+func (n *String) UnmarshalJSONFrom(dec *jsontext.Decoder) error {
+	switch k := dec.PeekKind(); k {
+	case jsontext.KindString:
+		var s string
+		if err := json.UnmarshalDecode(dec, &s); err != nil {
+			return fmt.Errorf("invalid string: %w", err)
+		}
+
+		n.String, n.Valid = s, true
+
+		return nil
+
+	case jsontext.KindNull:
+		if _, err := dec.ReadToken(); err != nil {
+			return fmt.Errorf("failed to read token: %w", err)
+		}
+
 		n.String, n.Valid = "", false
 
 		return nil
+
+	default:
+		return fmt.Errorf("unsupported json token kind: %v", k)
 	}
-
-	if err := json.Unmarshal(b, &n.String); err != nil {
-		return err
-	}
-
-	n.Valid = true
-
-	return nil
 }
 
-// UnmarshalYAML implements yaml.Unmarshaler.
-// It accepts a YAML string or null.
-// Note: yaml.v3 may bypass this method for null; handle the explicit !!null tag defensively.
+// UnmarshalJSON implements [json.Unmarshaler].
+// It is like [String.UnmarshalJSONFrom] but decodes b instead of reading from a [jsontext.Decoder].
+func (n *String) UnmarshalJSON(b []byte) error {
+	return json.Unmarshal(b, n)
+}
+
+// UnmarshalYAML implements [yaml.Unmarshaler].
+// It decodes a scalar from value into n as a string; a scalar tagged !!null makes n invalid.
+// Note that [go.yaml.in/yaml/v3] never calls this method for null nodes and leaves n unchanged instead.
 func (n *String) UnmarshalYAML(value *yaml.Node) error {
-	if value.Tag == "!!null" {
+	if value.ShortTag() == "!!null" {
 		n.String, n.Valid = "", false
 
 		return nil
 	}
 
-	if err := value.Decode(&n.String); err != nil {
-		return err
+	var s string
+	if err := value.Decode(&s); err != nil {
+		return fmt.Errorf("invalid string: %w", err)
 	}
 
-	n.Valid = true
+	n.String, n.Valid = s, true
 
 	return nil
 }

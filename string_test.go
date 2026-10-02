@@ -3,7 +3,7 @@ package nullable_test
 import (
 	"database/sql"
 	"database/sql/driver"
-	"encoding/json"
+	"encoding/json/v2"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -16,8 +16,10 @@ func TestString(t *testing.T) {
 	var n nullable.String
 	require.Implements(t, (*driver.Valuer)(nil), &n)
 	require.Implements(t, (*sql.Scanner)(nil), &n)
+	require.Implements(t, (*json.MarshalerTo)(nil), &n)
 	require.Implements(t, (*json.Marshaler)(nil), &n)
 	require.Implements(t, (*yaml.Marshaler)(nil), &n)
+	require.Implements(t, (*json.UnmarshalerFrom)(nil), &n)
 	require.Implements(t, (*json.Unmarshaler)(nil), &n)
 	require.Implements(t, (*yaml.Unmarshaler)(nil), &n)
 }
@@ -35,12 +37,12 @@ func TestNewStringFromStringPtr(t *testing.T) {
 				nullable.NewString("", false),
 			},
 			{
-				"empty",
+				"string: empty",
 				new(""),
 				nullable.NewString("", true),
 			},
 			{
-				"non-empty",
+				"string: non-empty",
 				new("non-empty"),
 				nullable.NewString("non-empty", true),
 			},
@@ -55,7 +57,7 @@ func TestNewStringFromStringPtr(t *testing.T) {
 		}
 	})
 
-	t.Run("success: captures value at call time", func(t *testing.T) {
+	t.Run("success: no aliasing", func(t *testing.T) {
 		s := new("non-empty")
 		n := nullable.NewStringFromStringPtr(s)
 
@@ -74,17 +76,17 @@ func TestString_StringPtr(t *testing.T) {
 			want *string
 		}{
 			{
-				"null",
+				"invalid",
 				nullable.NewString("", false),
 				nil,
 			},
 			{
-				"empty",
+				"valid: empty",
 				nullable.NewString("", true),
 				new(""),
 			},
 			{
-				"non-empty",
+				"valid: non-empty",
 				nullable.NewString("non-empty", true),
 				new("non-empty"),
 			},
@@ -98,7 +100,7 @@ func TestString_StringPtr(t *testing.T) {
 		}
 	})
 
-	t.Run("success: pointer refers to a copy", func(t *testing.T) {
+	t.Run("success: no aliasing", func(t *testing.T) {
 		n := nullable.NewString("non-empty", true)
 		s := n.StringPtr()
 
@@ -109,7 +111,25 @@ func TestString_StringPtr(t *testing.T) {
 	})
 }
 
-func TestString_MarshalJSON(t *testing.T) {
+func TestString_JSONMarshaling(t *testing.T) {
+	encs := []struct {
+		name    string
+		marshal func(nullable.String) ([]byte, error)
+	}{
+		{
+			"json.Marshal",
+			func(n nullable.String) ([]byte, error) {
+				return json.Marshal(n)
+			},
+		},
+		{
+			"MarshalJSON",
+			func(n nullable.String) ([]byte, error) {
+				return n.MarshalJSON()
+			},
+		},
+	}
+
 	t.Run("success", func(t *testing.T) {
 		tcs := []struct {
 			name string
@@ -117,17 +137,17 @@ func TestString_MarshalJSON(t *testing.T) {
 			want []byte
 		}{
 			{
-				"null",
+				"invalid",
 				nullable.NewString("", false),
 				[]byte(`null`),
 			},
 			{
-				"empty",
+				"valid: empty",
 				nullable.NewString("", true),
 				[]byte(`""`),
 			},
 			{
-				"non-empty",
+				"valid: non-empty",
 				nullable.NewString("non-empty", true),
 				[]byte(`"non-empty"`),
 			},
@@ -135,104 +155,45 @@ func TestString_MarshalJSON(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				b, err := json.Marshal(tc.in)
-				require.NoError(t, err)
-				require.Equal(t, tc.want, b)
+				for _, enc := range encs {
+					t.Run(enc.name, func(t *testing.T) {
+						b, err := enc.marshal(tc.in)
+						require.NoError(t, err)
+						require.Equal(t, tc.want, b)
+					})
+				}
 			})
 		}
 	})
 }
 
-func TestString_UnmarshalJSON(t *testing.T) {
-	t.Run("failure", func(t *testing.T) {
-		tcs := []struct {
-			name string
-			in   []byte
-			want string
-		}{
-			{
-				"boolean",
-				[]byte(`true`),
-				"",
-			},
-			{
-				"number",
-				[]byte(`0`),
-				"",
-			},
-		}
-
-		for _, tc := range tcs {
-			t.Run(tc.name, func(t *testing.T) {
-				var n nullable.String
-				err := n.UnmarshalJSON(tc.in)
-				require.ErrorContains(t, err, tc.want)
-			})
-		}
-	})
-
-	t.Run("success", func(t *testing.T) {
-		tcs := []struct {
-			name string
-			in   []byte
-			want nullable.String
-		}{
-			{
-				"null",
-				[]byte(`null`),
-				nullable.NewString("", false),
-			},
-			{
-				"string: empty",
-				[]byte(`""`),
-				nullable.NewString("", true),
-			},
-			{
-				"string: non-empty",
-				[]byte(`"non-empty"`),
-				nullable.NewString("non-empty", true),
-			},
-		}
-
-		for _, tc := range tcs {
-			t.Run(tc.name, func(t *testing.T) {
-				var n nullable.String
-				err := n.UnmarshalJSON(tc.in)
-				require.NoError(t, err)
-				require.Equal(t, tc.want.Valid, n.Valid)
-				require.Equal(t, tc.want.String, n.String)
-			})
-		}
-	})
-}
-
-func TestString_MarshalYAML(t *testing.T) {
+func TestString_YAMLMarshaling(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		tcs := []struct {
 			name string
 			in   nullable.String
-			want any
+			want []byte
 		}{
 			{
-				"null",
+				"invalid",
 				nullable.NewString("", false),
-				nil,
+				[]byte("null\n"),
 			},
 			{
-				"empty",
+				"valid: empty",
 				nullable.NewString("", true),
-				"",
+				[]byte(`""` + "\n"),
 			},
 			{
-				"non-empty",
+				"valid: non-empty",
 				nullable.NewString("non-empty", true),
-				"non-empty",
+				[]byte("non-empty\n"),
 			},
 		}
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				v, err := tc.in.MarshalYAML()
+				v, err := yaml.Marshal(tc.in)
 				require.NoError(t, err)
 				require.Equal(t, tc.want, v)
 			})
@@ -240,35 +201,138 @@ func TestString_MarshalYAML(t *testing.T) {
 	})
 }
 
-func TestString_UnmarshalYAML(t *testing.T) {
+func TestString_JSONUnmarshaling(t *testing.T) {
+	decs := []struct {
+		name      string
+		unmarshal func([]byte, *nullable.String) error
+	}{
+		{
+			"json.Unmarshal",
+			func(b []byte, n *nullable.String) error {
+				return json.Unmarshal(b, n)
+			},
+		},
+		{
+			"UnmarshalJSON",
+			func(b []byte, n *nullable.String) error {
+				return n.UnmarshalJSON(b)
+			},
+		},
+	}
+
 	t.Run("failure", func(t *testing.T) {
 		tcs := []struct {
 			name string
-			in   *yaml.Node
+			in   []byte
 			want string
 		}{
 			{
-				"sequence",
-				&yaml.Node{
-					Kind: yaml.SequenceNode,
-					Tag:  "!!seq",
-				},
+				"nil",
+				nil,
 				"",
 			},
 			{
-				"mapping",
-				&yaml.Node{
-					Kind: yaml.MappingNode,
-					Tag:  "!!map",
-				},
+				"empty",
+				[]byte{},
 				"",
+			},
+			{
+				"unquoted string bytes: broken null",
+				[]byte(`nul`),
+				"failed to read token",
+			},
+			{
+				"unquoted string bytes: boolean",
+				[]byte(`true`),
+				"unsupported json token kind: true",
+			},
+			{
+				"unquoted string bytes: number",
+				[]byte(`0`),
+				"unsupported json token kind: number",
+			},
+			{
+				"quoted string bytes: contains invalid escape sequences",
+				[]byte(`"\x"`),
+				"invalid string",
+			},
+		}
+
+		for _, tc := range tcs {
+			t.Run(tc.name, func(t *testing.T) {
+				for _, dec := range decs {
+					t.Run(dec.name, func(t *testing.T) {
+						var n nullable.String
+						err := dec.unmarshal(tc.in, &n)
+						require.ErrorContains(t, err, tc.want)
+					})
+				}
+			})
+		}
+	})
+
+	t.Run("success", func(t *testing.T) {
+		tcs := []struct {
+			name string
+			in   []byte
+			want nullable.String
+		}{
+			{
+				"unquoted string bytes: null",
+				[]byte(`null`),
+				nullable.NewString("", false),
+			},
+			{
+				"quoted string bytes: empty",
+				[]byte(`""`),
+				nullable.NewString("", true),
+			},
+			{
+				"quoted string bytes: non-empty",
+				[]byte(`"non-empty"`),
+				nullable.NewString("non-empty", true),
+			},
+		}
+
+		for _, tc := range tcs {
+			t.Run(tc.name, func(t *testing.T) {
+				for _, dec := range decs {
+					t.Run(dec.name, func(t *testing.T) {
+						var n nullable.String
+						err := dec.unmarshal(tc.in, &n)
+						require.NoError(t, err)
+						require.Equal(t, tc.want.Valid, n.Valid)
+						require.Equal(t, tc.want.String, n.String)
+					})
+				}
+			})
+		}
+	})
+}
+
+func TestString_YAMLUnmarshaling(t *testing.T) {
+	t.Run("failure", func(t *testing.T) {
+		tcs := []struct {
+			name string
+			in   []byte
+			want string
+		}{
+			{
+				"unquoted string bytes: sequence",
+				[]byte(`[]`),
+				"invalid string",
+			},
+			{
+				"unquoted string bytes: mapping",
+				[]byte(`{}`),
+				"invalid string",
 			},
 		}
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				var n nullable.String
-				err := n.UnmarshalYAML(tc.in)
+				err := yaml.Unmarshal(tc.in, &n)
 				require.ErrorContains(t, err, tc.want)
 			})
 		}
@@ -277,33 +341,22 @@ func TestString_UnmarshalYAML(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		tcs := []struct {
 			name string
-			in   *yaml.Node
+			in   []byte
 			want nullable.String
 		}{
 			{
-				"null",
-				&yaml.Node{
-					Kind: yaml.ScalarNode,
-					Tag:  "!!null",
-				},
+				"unquoted string bytes: null",
+				[]byte(`null`),
 				nullable.NewString("", false),
 			},
 			{
-				"string: empty",
-				&yaml.Node{
-					Kind:  yaml.ScalarNode,
-					Tag:   "!!str",
-					Value: "",
-				},
+				"quoted string bytes: empty",
+				[]byte(`""`),
 				nullable.NewString("", true),
 			},
 			{
-				"string: non-empty",
-				&yaml.Node{
-					Kind:  yaml.ScalarNode,
-					Tag:   "!!str",
-					Value: "non-empty",
-				},
+				"quoted string bytes: non-empty",
+				[]byte(`"non-empty"`),
 				nullable.NewString("non-empty", true),
 			},
 		}
@@ -311,10 +364,56 @@ func TestString_UnmarshalYAML(t *testing.T) {
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				var n nullable.String
-				err := n.UnmarshalYAML(tc.in)
+				err := yaml.Unmarshal(tc.in, &n)
 				require.NoError(t, err)
 				require.Equal(t, tc.want.Valid, n.Valid)
 				require.Equal(t, tc.want.String, n.String)
+			})
+		}
+	})
+
+	t.Run("success: null node", func(t *testing.T) {
+		tcs := []struct {
+			name string
+			in   *yaml.Node
+		}{
+			{
+				"no value with short tag",
+				&yaml.Node{
+					Kind: yaml.ScalarNode,
+					Tag:  "!!null",
+				},
+			},
+			{
+				"no value with long tag",
+				&yaml.Node{
+					Kind: yaml.ScalarNode,
+					Tag:  "tag:yaml.org,2002:null",
+				},
+			},
+			{
+				"null",
+				&yaml.Node{
+					Kind:  yaml.ScalarNode,
+					Value: "null",
+				},
+			},
+			{
+				"tilde",
+				&yaml.Node{
+					Kind:  yaml.ScalarNode,
+					Value: "~",
+				},
+			},
+		}
+
+		for _, tc := range tcs {
+			t.Run(tc.name, func(t *testing.T) {
+				n := nullable.NewString("non-empty", true)
+				err := n.UnmarshalYAML(tc.in)
+				require.NoError(t, err)
+				require.False(t, n.Valid)
+				require.Equal(t, "", n.String)
 			})
 		}
 	})
