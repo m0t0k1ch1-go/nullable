@@ -237,7 +237,7 @@ func TestString_JSONUnmarshaling(t *testing.T) {
 				"",
 			},
 			{
-				"unquoted string bytes: broken null",
+				"unquoted string bytes: truncated null",
 				[]byte(`nul`),
 				"failed to read token",
 			},
@@ -252,8 +252,8 @@ func TestString_JSONUnmarshaling(t *testing.T) {
 				"unsupported json token kind: number",
 			},
 			{
-				"quoted string bytes: contains invalid escape sequences",
-				[]byte(`"\x"`),
+				"quoted string bytes: truncated string",
+				[]byte(`"non-empty`),
 				"invalid string",
 			},
 		}
@@ -348,6 +348,16 @@ func TestString_YAMLUnmarshaling(t *testing.T) {
 				"unquoted string bytes: null",
 				[]byte(`null`),
 				nullable.NewString("", false),
+			},
+			{
+				"unquoted string bytes: boolean",
+				[]byte(`true`),
+				nullable.NewString("true", true),
+			},
+			{
+				"unquoted string bytes: number",
+				[]byte(`0`),
+				nullable.NewString("0", true),
 			},
 			{
 				"quoted string bytes: empty",
