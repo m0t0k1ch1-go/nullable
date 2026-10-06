@@ -260,21 +260,6 @@ func TestTimestamp_UnmarshalJSON(t *testing.T) {
 				[]byte(`""`),
 				"",
 			},
-			{
-				"string: zero",
-				[]byte(`"0"`),
-				"",
-			},
-			{
-				"string: positive decimal",
-				[]byte(`"1231006505"`),
-				"",
-			},
-			{
-				"string: negative decimal",
-				[]byte(`"-1231006505"`),
-				"",
-			},
 		}
 
 		for _, tc := range tcs {
@@ -310,6 +295,21 @@ func TestTimestamp_UnmarshalJSON(t *testing.T) {
 			{
 				"number: negative",
 				[]byte(`-1231006505`),
+				nullable.NewTimestamp(timeutil.NewTimestampFromUnix(-1231006505), true),
+			},
+			{
+				"string: zero",
+				[]byte(`"0"`),
+				nullable.NewTimestamp(timeutil.NewTimestampFromUnix(0), true),
+			},
+			{
+				"string: positive decimal",
+				[]byte(`"1231006505"`),
+				nullable.NewTimestamp(timeutil.NewTimestampFromUnix(1231006505), true),
+			},
+			{
+				"string: negative decimal",
+				[]byte(`"-1231006505"`),
 				nullable.NewTimestamp(timeutil.NewTimestampFromUnix(-1231006505), true),
 			},
 		}
