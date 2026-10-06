@@ -237,16 +237,6 @@ func TestBool_JSONUnmarshaling(t *testing.T) {
 				"",
 			},
 			{
-				"unquoted string bytes: truncated null",
-				[]byte(`nul`),
-				"failed to read token",
-			},
-			{
-				"unquoted string bytes: truncated boolean",
-				[]byte(`tru`),
-				"invalid bool",
-			},
-			{
 				"unquoted string bytes: number",
 				[]byte(`0`),
 				"unsupported json token kind: number",
@@ -255,6 +245,16 @@ func TestBool_JSONUnmarshaling(t *testing.T) {
 				"quoted string bytes: boolean",
 				[]byte(`"true"`),
 				"unsupported json token kind: string",
+			},
+			{
+				"unquoted string bytes: truncated null",
+				[]byte(`nul`),
+				"failed to read token",
+			},
+			{
+				"unquoted string bytes: truncated boolean",
+				[]byte(`tru`),
+				"invalid bool",
 			},
 		}
 
