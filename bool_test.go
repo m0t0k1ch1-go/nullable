@@ -244,7 +244,7 @@ func TestBool_JSONUnmarshaling(t *testing.T) {
 			{
 				"unquoted string bytes: truncated boolean",
 				[]byte(`tru`),
-				"invalid boolean",
+				"invalid bool",
 			},
 			{
 				"unquoted string bytes: number",
@@ -320,22 +320,22 @@ func TestBool_YAMLUnmarshaling(t *testing.T) {
 			{
 				"unquoted string bytes: sequence",
 				[]byte(`[]`),
-				"invalid boolean",
+				"invalid bool",
 			},
 			{
 				"unquoted string bytes: mapping",
 				[]byte(`{}`),
-				"invalid boolean",
+				"invalid bool",
 			},
 			{
 				"unquoted string bytes: number",
 				[]byte(`0`),
-				"invalid boolean",
+				"invalid bool",
 			},
 			{
 				"quoted string bytes: boolean",
 				[]byte(`"true"`),
-				"invalid boolean",
+				"invalid bool",
 			},
 		}
 
