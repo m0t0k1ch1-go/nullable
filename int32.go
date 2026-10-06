@@ -86,7 +86,7 @@ func (n *Int32) UnmarshalJSONFrom(dec *jsontext.Decoder) error {
 	case jsontext.KindNumber:
 		var i int32
 		if err := json.UnmarshalDecode(dec, &i); err != nil {
-			return fmt.Errorf("invalid int32: %w", err)
+			return fmt.Errorf("invalid number: %w", err)
 		}
 
 		n.Int32, n.Valid = i, true
@@ -125,7 +125,7 @@ func (n *Int32) UnmarshalYAML(value *yaml.Node) error {
 
 	var i int32
 	if err := value.Decode(&i); err != nil {
-		return fmt.Errorf("invalid int32: %w", err)
+		return fmt.Errorf("invalid node: %w", err)
 	}
 
 	n.Int32, n.Valid = i, true

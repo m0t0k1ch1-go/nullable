@@ -275,22 +275,22 @@ func TestInt32_JSONUnmarshaling(t *testing.T) {
 			{
 				"unquoted decimal string bytes: fractional",
 				[]byte(`0.0`),
-				"invalid int32",
+				"invalid number",
 			},
 			{
 				"unquoted decimal string bytes: exponential",
 				[]byte(`0e0`),
-				"invalid int32",
+				"invalid number",
 			},
 			{
 				"unquoted decimal string bytes: min - 1",
 				[]byte(`-2147483649`),
-				"invalid int32",
+				"invalid number",
 			},
 			{
 				"unquoted decimal string bytes: max + 1",
 				[]byte(`2147483648`),
-				"invalid int32",
+				"invalid number",
 			},
 		}
 
@@ -361,22 +361,22 @@ func TestInt32_YAMLUnmarshaling(t *testing.T) {
 			{
 				"unquoted string bytes: sequence",
 				[]byte(`[]`),
-				"invalid int32",
+				"invalid node",
 			},
 			{
 				"unquoted string bytes: mapping",
 				[]byte(`{}`),
-				"invalid int32",
+				"invalid node",
 			},
 			{
 				"unquoted string bytes: boolean",
 				[]byte(`true`),
-				"invalid int32",
+				"invalid node",
 			},
 			{
 				"quoted decimal string bytes: zero",
 				[]byte(`"0"`),
-				"invalid int32",
+				"invalid node",
 			},
 		}
 

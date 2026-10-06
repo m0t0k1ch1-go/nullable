@@ -320,12 +320,12 @@ func TestString_YAMLUnmarshaling(t *testing.T) {
 			{
 				"unquoted string bytes: sequence",
 				[]byte(`[]`),
-				"invalid string",
+				"invalid node",
 			},
 			{
 				"unquoted string bytes: mapping",
 				[]byte(`{}`),
-				"invalid string",
+				"invalid node",
 			},
 		}
 

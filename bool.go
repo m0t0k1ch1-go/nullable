@@ -86,7 +86,7 @@ func (n *Bool) UnmarshalJSONFrom(dec *jsontext.Decoder) error {
 	case jsontext.KindTrue, jsontext.KindFalse:
 		var b bool
 		if err := json.UnmarshalDecode(dec, &b); err != nil {
-			return fmt.Errorf("invalid bool: %w", err)
+			return fmt.Errorf("invalid boolean: %w", err)
 		}
 
 		n.Bool, n.Valid = b, true
@@ -125,7 +125,7 @@ func (n *Bool) UnmarshalYAML(value *yaml.Node) error {
 
 	var b bool
 	if err := value.Decode(&b); err != nil {
-		return fmt.Errorf("invalid bool: %w", err)
+		return fmt.Errorf("invalid node: %w", err)
 	}
 
 	n.Bool, n.Valid = b, true
