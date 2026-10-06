@@ -3,11 +3,12 @@ package nullable_test
 import (
 	"database/sql"
 	"database/sql/driver"
-	"encoding/json"
+	"encoding/json/v2"
 	"math"
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"go.yaml.in/yaml/v3"
 
 	"github.com/m0t0k1ch1-go/nullable/v3"
 )
@@ -16,8 +17,12 @@ func TestInt64(t *testing.T) {
 	var n nullable.Int64
 	require.Implements(t, (*driver.Valuer)(nil), &n)
 	require.Implements(t, (*sql.Scanner)(nil), &n)
+	require.Implements(t, (*json.MarshalerTo)(nil), &n)
 	require.Implements(t, (*json.Marshaler)(nil), &n)
+	require.Implements(t, (*yaml.Marshaler)(nil), &n)
+	require.Implements(t, (*json.UnmarshalerFrom)(nil), &n)
 	require.Implements(t, (*json.Unmarshaler)(nil), &n)
+	require.Implements(t, (*yaml.Unmarshaler)(nil), &n)
 }
 
 func TestNewInt64FromInt64Ptr(t *testing.T) {
@@ -33,17 +38,17 @@ func TestNewInt64FromInt64Ptr(t *testing.T) {
 				nullable.NewInt64(0, false),
 			},
 			{
-				"zero",
+				"int64: zero",
 				new(int64(0)),
 				nullable.NewInt64(0, true),
 			},
 			{
-				"min",
+				"int64: min",
 				new(int64(math.MinInt64)),
 				nullable.NewInt64(math.MinInt64, true),
 			},
 			{
-				"max",
+				"int64: max",
 				new(int64(math.MaxInt64)),
 				nullable.NewInt64(math.MaxInt64, true),
 			},
@@ -58,7 +63,7 @@ func TestNewInt64FromInt64Ptr(t *testing.T) {
 		}
 	})
 
-	t.Run("success: captures value at call time", func(t *testing.T) {
+	t.Run("success: no aliasing", func(t *testing.T) {
 		i := new(int64(1))
 		n := nullable.NewInt64FromInt64Ptr(i)
 
@@ -77,22 +82,22 @@ func TestInt64_Int64Ptr(t *testing.T) {
 			want *int64
 		}{
 			{
-				"null",
+				"invalid",
 				nullable.NewInt64(0, false),
 				nil,
 			},
 			{
-				"zero",
+				"valid: zero",
 				nullable.NewInt64(0, true),
 				new(int64(0)),
 			},
 			{
-				"min",
+				"valid: min",
 				nullable.NewInt64(math.MinInt64, true),
 				new(int64(math.MinInt64)),
 			},
 			{
-				"max",
+				"valid: max",
 				nullable.NewInt64(math.MaxInt64, true),
 				new(int64(math.MaxInt64)),
 			},
@@ -106,7 +111,7 @@ func TestInt64_Int64Ptr(t *testing.T) {
 		}
 	})
 
-	t.Run("success: pointer refers to a copy", func(t *testing.T) {
+	t.Run("success: no aliasing", func(t *testing.T) {
 		n := nullable.NewInt64(1, true)
 		i := n.Int64Ptr()
 
@@ -117,7 +122,25 @@ func TestInt64_Int64Ptr(t *testing.T) {
 	})
 }
 
-func TestInt64_MarshalJSON(t *testing.T) {
+func TestInt64_JSONMarshaling(t *testing.T) {
+	encs := []struct {
+		name    string
+		marshal func(nullable.Int64) ([]byte, error)
+	}{
+		{
+			"json.Marshal",
+			func(n nullable.Int64) ([]byte, error) {
+				return json.Marshal(n)
+			},
+		},
+		{
+			"MarshalJSON",
+			func(n nullable.Int64) ([]byte, error) {
+				return n.MarshalJSON()
+			},
+		},
+	}
+
 	t.Run("success", func(t *testing.T) {
 		tcs := []struct {
 			name string
@@ -125,22 +148,22 @@ func TestInt64_MarshalJSON(t *testing.T) {
 			want []byte
 		}{
 			{
-				"null",
+				"invalid",
 				nullable.NewInt64(0, false),
 				[]byte(`null`),
 			},
 			{
-				"zero",
+				"valid: zero",
 				nullable.NewInt64(0, true),
 				[]byte(`0`),
 			},
 			{
-				"min",
+				"valid: min",
 				nullable.NewInt64(math.MinInt64, true),
 				[]byte(`-9223372036854775808`),
 			},
 			{
-				"max",
+				"valid: max",
 				nullable.NewInt64(math.MaxInt64, true),
 				[]byte(`9223372036854775807`),
 			},
@@ -148,15 +171,76 @@ func TestInt64_MarshalJSON(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				b, err := tc.in.MarshalJSON()
-				require.NoError(t, err)
-				require.Equal(t, tc.want, b)
+				for _, enc := range encs {
+					t.Run(enc.name, func(t *testing.T) {
+						b, err := enc.marshal(tc.in)
+						require.NoError(t, err)
+						require.Equal(t, tc.want, b)
+					})
+				}
 			})
 		}
 	})
 }
 
-func TestInt64_UnmarshalJSON(t *testing.T) {
+func TestInt64_YAMLMarshaling(t *testing.T) {
+	t.Run("success", func(t *testing.T) {
+		tcs := []struct {
+			name string
+			in   nullable.Int64
+			want []byte
+		}{
+			{
+				"invalid",
+				nullable.NewInt64(0, false),
+				[]byte("null\n"),
+			},
+			{
+				"valid: zero",
+				nullable.NewInt64(0, true),
+				[]byte("0\n"),
+			},
+			{
+				"valid: min",
+				nullable.NewInt64(math.MinInt64, true),
+				[]byte("-9223372036854775808\n"),
+			},
+			{
+				"valid: max",
+				nullable.NewInt64(math.MaxInt64, true),
+				[]byte("9223372036854775807\n"),
+			},
+		}
+
+		for _, tc := range tcs {
+			t.Run(tc.name, func(t *testing.T) {
+				v, err := yaml.Marshal(tc.in)
+				require.NoError(t, err)
+				require.Equal(t, tc.want, v)
+			})
+		}
+	})
+}
+
+func TestInt64_JSONUnmarshaling(t *testing.T) {
+	decs := []struct {
+		name      string
+		unmarshal func([]byte, *nullable.Int64) error
+	}{
+		{
+			"json.Unmarshal",
+			func(b []byte, n *nullable.Int64) error {
+				return json.Unmarshal(b, n)
+			},
+		},
+		{
+			"UnmarshalJSON",
+			func(b []byte, n *nullable.Int64) error {
+				return n.UnmarshalJSON(b)
+			},
+		},
+	}
+
 	t.Run("failure", func(t *testing.T) {
 		tcs := []struct {
 			name string
@@ -164,31 +248,142 @@ func TestInt64_UnmarshalJSON(t *testing.T) {
 			want string
 		}{
 			{
-				"boolean",
+				"nil",
+				nil,
+				"",
+			},
+			{
+				"empty",
+				[]byte{},
+				"",
+			},
+			{
+				"unquoted string bytes: boolean",
 				[]byte(`true`),
-				"",
+				"unsupported json token kind: true",
 			},
 			{
-				"number: min - 1",
-				[]byte(`-9223372036854775809`),
-				"",
-			},
-			{
-				"number: max + 1",
-				[]byte(`9223372036854775808`),
-				"",
-			},
-			{
-				"string",
+				"quoted decimal string bytes: zero",
 				[]byte(`"0"`),
-				"",
+				"unsupported json token kind: string",
+			},
+			{
+				"unquoted string bytes: truncated null",
+				[]byte(`nul`),
+				"failed to read token",
+			},
+			{
+				"unquoted decimal string bytes: fractional",
+				[]byte(`0.0`),
+				"invalid int64",
+			},
+			{
+				"unquoted decimal string bytes: exponential",
+				[]byte(`0e0`),
+				"invalid int64",
+			},
+			{
+				"unquoted decimal string bytes: min - 1",
+				[]byte(`-9223372036854775809`),
+				"invalid int64",
+			},
+			{
+				"unquoted decimal string bytes: max + 1",
+				[]byte(`9223372036854775808`),
+				"invalid int64",
+			},
+		}
+
+		for _, tc := range tcs {
+			t.Run(tc.name, func(t *testing.T) {
+				for _, dec := range decs {
+					t.Run(dec.name, func(t *testing.T) {
+						var n nullable.Int64
+						err := dec.unmarshal(tc.in, &n)
+						require.ErrorContains(t, err, tc.want)
+					})
+				}
+			})
+		}
+	})
+
+	t.Run("success", func(t *testing.T) {
+		tcs := []struct {
+			name string
+			in   []byte
+			want nullable.Int64
+		}{
+			{
+				"unquoted string bytes: null",
+				[]byte(`null`),
+				nullable.NewInt64(0, false),
+			},
+			{
+				"unquoted decimal string bytes: zero",
+				[]byte(`0`),
+				nullable.NewInt64(0, true),
+			},
+			{
+				"unquoted decimal string bytes: min",
+				[]byte(`-9223372036854775808`),
+				nullable.NewInt64(math.MinInt64, true),
+			},
+			{
+				"unquoted decimal string bytes: max",
+				[]byte(`9223372036854775807`),
+				nullable.NewInt64(math.MaxInt64, true),
+			},
+		}
+
+		for _, tc := range tcs {
+			t.Run(tc.name, func(t *testing.T) {
+				for _, dec := range decs {
+					t.Run(dec.name, func(t *testing.T) {
+						var n nullable.Int64
+						err := dec.unmarshal(tc.in, &n)
+						require.NoError(t, err)
+						require.Equal(t, tc.want.Valid, n.Valid)
+						require.Equal(t, tc.want.Int64, n.Int64)
+					})
+				}
+			})
+		}
+	})
+}
+
+func TestInt64_YAMLUnmarshaling(t *testing.T) {
+	t.Run("failure", func(t *testing.T) {
+		tcs := []struct {
+			name string
+			in   []byte
+			want string
+		}{
+			{
+				"unquoted string bytes: sequence",
+				[]byte(`[]`),
+				"invalid int64",
+			},
+			{
+				"unquoted string bytes: mapping",
+				[]byte(`{}`),
+				"invalid int64",
+			},
+			{
+				"unquoted string bytes: boolean",
+				[]byte(`true`),
+				"invalid int64",
+			},
+			{
+				"quoted decimal string bytes: zero",
+				[]byte(`"0"`),
+				"invalid int64",
 			},
 		}
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				var n nullable.Int64
-				err := n.UnmarshalJSON(tc.in)
+				err := yaml.Unmarshal(tc.in, &n)
 				require.ErrorContains(t, err, tc.want)
 			})
 		}
@@ -201,22 +396,22 @@ func TestInt64_UnmarshalJSON(t *testing.T) {
 			want nullable.Int64
 		}{
 			{
-				"null",
+				"unquoted string bytes: null",
 				[]byte(`null`),
 				nullable.NewInt64(0, false),
 			},
 			{
-				"number: zero",
+				"unquoted decimal string bytes: zero",
 				[]byte(`0`),
 				nullable.NewInt64(0, true),
 			},
 			{
-				"number: min",
+				"unquoted decimal string bytes: min",
 				[]byte(`-9223372036854775808`),
 				nullable.NewInt64(math.MinInt64, true),
 			},
 			{
-				"number: max",
+				"unquoted decimal string bytes: max",
 				[]byte(`9223372036854775807`),
 				nullable.NewInt64(math.MaxInt64, true),
 			},
@@ -225,10 +420,56 @@ func TestInt64_UnmarshalJSON(t *testing.T) {
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				var n nullable.Int64
-				err := n.UnmarshalJSON(tc.in)
+				err := yaml.Unmarshal(tc.in, &n)
 				require.NoError(t, err)
 				require.Equal(t, tc.want.Valid, n.Valid)
 				require.Equal(t, tc.want.Int64, n.Int64)
+			})
+		}
+	})
+
+	t.Run("success: null node", func(t *testing.T) {
+		tcs := []struct {
+			name string
+			in   *yaml.Node
+		}{
+			{
+				"no value with short tag",
+				&yaml.Node{
+					Kind: yaml.ScalarNode,
+					Tag:  "!!null",
+				},
+			},
+			{
+				"no value with long tag",
+				&yaml.Node{
+					Kind: yaml.ScalarNode,
+					Tag:  "tag:yaml.org,2002:null",
+				},
+			},
+			{
+				"null",
+				&yaml.Node{
+					Kind:  yaml.ScalarNode,
+					Value: "null",
+				},
+			},
+			{
+				"tilde",
+				&yaml.Node{
+					Kind:  yaml.ScalarNode,
+					Value: "~",
+				},
+			},
+		}
+
+		for _, tc := range tcs {
+			t.Run(tc.name, func(t *testing.T) {
+				n := nullable.NewInt64(1, true)
+				err := n.UnmarshalYAML(tc.in)
+				require.NoError(t, err)
+				require.False(t, n.Valid)
+				require.Equal(t, int64(0), n.Int64)
 			})
 		}
 	})
