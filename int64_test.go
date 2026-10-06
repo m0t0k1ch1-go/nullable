@@ -275,22 +275,22 @@ func TestInt64_JSONUnmarshaling(t *testing.T) {
 			{
 				"unquoted decimal string bytes: fractional",
 				[]byte(`0.0`),
-				"invalid int64",
+				"invalid number",
 			},
 			{
 				"unquoted decimal string bytes: exponential",
 				[]byte(`0e0`),
-				"invalid int64",
+				"invalid number",
 			},
 			{
 				"unquoted decimal string bytes: min - 1",
 				[]byte(`-9223372036854775809`),
-				"invalid int64",
+				"invalid number",
 			},
 			{
 				"unquoted decimal string bytes: max + 1",
 				[]byte(`9223372036854775808`),
-				"invalid int64",
+				"invalid number",
 			},
 		}
 
@@ -361,22 +361,22 @@ func TestInt64_YAMLUnmarshaling(t *testing.T) {
 			{
 				"unquoted string bytes: sequence",
 				[]byte(`[]`),
-				"invalid int64",
+				"invalid node",
 			},
 			{
 				"unquoted string bytes: mapping",
 				[]byte(`{}`),
-				"invalid int64",
+				"invalid node",
 			},
 			{
 				"unquoted string bytes: boolean",
 				[]byte(`true`),
-				"invalid int64",
+				"invalid node",
 			},
 			{
 				"quoted decimal string bytes: zero",
 				[]byte(`"0"`),
-				"invalid int64",
+				"invalid node",
 			},
 		}
 

@@ -295,12 +295,12 @@ func TestFloat64_JSONUnmarshaling(t *testing.T) {
 			{
 				"unquoted decimal string bytes: less than min",
 				[]byte(`-1e+309`),
-				"invalid float64",
+				"invalid number",
 			},
 			{
 				"unquoted decimal string bytes: greater than max",
 				[]byte(`1e+309`),
-				"invalid float64",
+				"invalid number",
 			},
 		}
 
@@ -376,22 +376,22 @@ func TestFloat64_YAMLUnmarshaling(t *testing.T) {
 			{
 				"unquoted string bytes: sequence",
 				[]byte(`[]`),
-				"invalid float64",
+				"invalid node",
 			},
 			{
 				"unquoted string bytes: mapping",
 				[]byte(`{}`),
-				"invalid float64",
+				"invalid node",
 			},
 			{
 				"unquoted string bytes: boolean",
 				[]byte(`true`),
-				"invalid float64",
+				"invalid node",
 			},
 			{
 				"quoted decimal string bytes: zero",
 				[]byte(`"0"`),
-				"invalid float64",
+				"invalid node",
 			},
 		}
 

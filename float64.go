@@ -86,7 +86,7 @@ func (n *Float64) UnmarshalJSONFrom(dec *jsontext.Decoder) error {
 	case jsontext.KindNumber:
 		var f float64
 		if err := json.UnmarshalDecode(dec, &f); err != nil {
-			return fmt.Errorf("invalid float64: %w", err)
+			return fmt.Errorf("invalid number: %w", err)
 		}
 
 		n.Float64, n.Valid = f, true
@@ -125,7 +125,7 @@ func (n *Float64) UnmarshalYAML(value *yaml.Node) error {
 
 	var f float64
 	if err := value.Decode(&f); err != nil {
-		return fmt.Errorf("invalid float64: %w", err)
+		return fmt.Errorf("invalid node: %w", err)
 	}
 
 	n.Float64, n.Valid = f, true
