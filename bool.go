@@ -114,7 +114,7 @@ func (n *Bool) UnmarshalJSON(b []byte) error {
 }
 
 // UnmarshalYAML implements [yaml.Unmarshaler].
-// It decodes a scalar from value into n as a boolean; a scalar tagged !!null makes n invalid.
+// It decodes a scalar from value into n as a bool; a scalar tagged !!null makes n invalid.
 // Note that [go.yaml.in/yaml/v3] never calls this method for null nodes and leaves n unchanged instead.
 func (n *Bool) UnmarshalYAML(value *yaml.Node) error {
 	if value.ShortTag() == "!!null" {
