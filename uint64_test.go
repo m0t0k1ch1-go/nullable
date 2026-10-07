@@ -371,9 +371,9 @@ func TestUint64_YAMLMarshaling(t *testing.T) {
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				v, err := yaml.Marshal(tc.in)
+				b, err := yaml.Marshal(tc.in)
 				require.NoError(t, err)
-				require.Equal(t, tc.want, v)
+				require.Equal(t, tc.want, b)
 			})
 		}
 	})
