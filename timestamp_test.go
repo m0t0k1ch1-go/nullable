@@ -1,16 +1,15 @@
 package nullable_test
 
 import (
-	"bytes"
 	"database/sql"
 	"database/sql/driver"
-	"encoding/json"
-	"math"
+	"encoding/json/v2"
 	"testing"
 	"time"
 
 	"github.com/m0t0k1ch1-go/timeutil/v5"
 	"github.com/stretchr/testify/require"
+	"go.yaml.in/yaml/v3"
 
 	"github.com/m0t0k1ch1-go/nullable/v3"
 )
@@ -19,8 +18,12 @@ func TestTimestamp(t *testing.T) {
 	var n nullable.Timestamp
 	require.Implements(t, (*driver.Valuer)(nil), &n)
 	require.Implements(t, (*sql.Scanner)(nil), &n)
+	require.Implements(t, (*json.MarshalerTo)(nil), &n)
 	require.Implements(t, (*json.Marshaler)(nil), &n)
+	require.Implements(t, (*yaml.Marshaler)(nil), &n)
+	require.Implements(t, (*json.UnmarshalerFrom)(nil), &n)
 	require.Implements(t, (*json.Unmarshaler)(nil), &n)
+	require.Implements(t, (*yaml.Unmarshaler)(nil), &n)
 }
 
 func TestTimestamp_NullableString(t *testing.T) {
@@ -31,24 +34,14 @@ func TestTimestamp_NullableString(t *testing.T) {
 			want nullable.String
 		}{
 			{
-				"null",
+				"invalid",
 				nullable.NewTimestamp(timeutil.Timestamp{}, false),
 				nullable.NewString("", false),
 			},
 			{
-				"zero",
-				nullable.NewTimestamp(timeutil.NewTimestampFromUnix(0), true),
-				nullable.NewString("0", true),
-			},
-			{
-				"positive",
+				"valid: positive",
 				nullable.NewTimestamp(timeutil.NewTimestampFromUnix(1231006505), true),
 				nullable.NewString("1231006505", true),
-			},
-			{
-				"negative",
-				nullable.NewTimestamp(timeutil.NewTimestampFromUnix(-1231006505), true),
-				nullable.NewString("-1231006505", true),
 			},
 		}
 
@@ -70,24 +63,14 @@ func TestTimestamp_Value(t *testing.T) {
 			want driver.Value
 		}{
 			{
-				"null",
+				"invalid",
 				nullable.NewTimestamp(timeutil.Timestamp{}, false),
 				nil,
 			},
 			{
-				"zero",
-				nullable.NewTimestamp(timeutil.NewTimestampFromUnix(0), true),
-				int64(0),
-			},
-			{
-				"positive",
+				"valid: positive",
 				nullable.NewTimestamp(timeutil.NewTimestampFromUnix(1231006505), true),
 				int64(1231006505),
-			},
-			{
-				"negative",
-				nullable.NewTimestamp(timeutil.NewTimestampFromUnix(-1231006505), true),
-				int64(-1231006505),
 			},
 		}
 
@@ -109,24 +92,9 @@ func TestTimestamp_Scan(t *testing.T) {
 			want string
 		}{
 			{
-				"time.Time",
+				"time",
 				time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC),
-				"",
-			},
-			{
-				"uint64: exceeds int64 range",
-				uint64(math.MaxInt64) + 1,
-				"",
-			},
-			{
-				"[]byte: empty",
-				[]byte{},
-				"",
-			},
-			{
-				"[]byte: exceeds 256 bits",
-				append([]byte{0x01}, bytes.Repeat([]byte{0x00}, 32)...),
-				"",
+				"unsupported source type: time.Time",
 			},
 		}
 
@@ -151,28 +119,8 @@ func TestTimestamp_Scan(t *testing.T) {
 				nullable.NewTimestamp(timeutil.Timestamp{}, false),
 			},
 			{
-				"int64: zero",
-				int64(0),
-				nullable.NewTimestamp(timeutil.NewTimestampFromUnix(0), true),
-			},
-			{
 				"int64: positive",
 				int64(1231006505),
-				nullable.NewTimestamp(timeutil.NewTimestampFromUnix(1231006505), true),
-			},
-			{
-				"int64: negative",
-				int64(-1231006505),
-				nullable.NewTimestamp(timeutil.NewTimestampFromUnix(-1231006505), true),
-			},
-			{
-				"uint64",
-				uint64(1231006505),
-				nullable.NewTimestamp(timeutil.NewTimestampFromUnix(1231006505), true),
-			},
-			{
-				"[]byte",
-				[]byte("1231006505"),
 				nullable.NewTimestamp(timeutil.NewTimestampFromUnix(1231006505), true),
 			},
 		}
@@ -189,7 +137,25 @@ func TestTimestamp_Scan(t *testing.T) {
 	})
 }
 
-func TestTimestamp_MarshalJSON(t *testing.T) {
+func TestTimestamp_JSONMarshaling(t *testing.T) {
+	encs := []struct {
+		name    string
+		marshal func(nullable.Timestamp) ([]byte, error)
+	}{
+		{
+			"json.Marshal",
+			func(n nullable.Timestamp) ([]byte, error) {
+				return json.Marshal(n)
+			},
+		},
+		{
+			"MarshalJSON",
+			func(n nullable.Timestamp) ([]byte, error) {
+				return n.MarshalJSON()
+			},
+		},
+	}
+
 	t.Run("success", func(t *testing.T) {
 		tcs := []struct {
 			name string
@@ -197,30 +163,53 @@ func TestTimestamp_MarshalJSON(t *testing.T) {
 			want []byte
 		}{
 			{
-				"null",
+				"invalid",
 				nullable.NewTimestamp(timeutil.Timestamp{}, false),
 				[]byte(`null`),
 			},
 			{
-				"zero",
-				nullable.NewTimestamp(timeutil.NewTimestampFromUnix(0), true),
-				[]byte(`0`),
-			},
-			{
-				"positive",
+				"valid: positive",
 				nullable.NewTimestamp(timeutil.NewTimestampFromUnix(1231006505), true),
 				[]byte(`1231006505`),
-			},
-			{
-				"negative",
-				nullable.NewTimestamp(timeutil.NewTimestampFromUnix(-1231006505), true),
-				[]byte(`-1231006505`),
 			},
 		}
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				b, err := tc.in.MarshalJSON()
+				for _, enc := range encs {
+					t.Run(enc.name, func(t *testing.T) {
+						b, err := enc.marshal(tc.in)
+						require.NoError(t, err)
+						require.Equal(t, tc.want, b)
+					})
+				}
+			})
+		}
+	})
+}
+
+func TestTimestamp_YAMLMarshaling(t *testing.T) {
+	t.Run("success", func(t *testing.T) {
+		tcs := []struct {
+			name string
+			in   nullable.Timestamp
+			want []byte
+		}{
+			{
+				"invalid",
+				nullable.NewTimestamp(timeutil.Timestamp{}, false),
+				[]byte("null\n"),
+			},
+			{
+				"valid: positive",
+				nullable.NewTimestamp(timeutil.NewTimestampFromUnix(1231006505), true),
+				[]byte("1231006505\n"),
+			},
+		}
+
+		for _, tc := range tcs {
+			t.Run(tc.name, func(t *testing.T) {
+				b, err := yaml.Marshal(tc.in)
 				require.NoError(t, err)
 				require.Equal(t, tc.want, b)
 			})
@@ -228,7 +217,25 @@ func TestTimestamp_MarshalJSON(t *testing.T) {
 	})
 }
 
-func TestTimestamp_UnmarshalJSON(t *testing.T) {
+func TestTimestamp_JSONUnmarshaling(t *testing.T) {
+	decs := []struct {
+		name      string
+		unmarshal func([]byte, *nullable.Timestamp) error
+	}{
+		{
+			"json.Unmarshal",
+			func(b []byte, n *nullable.Timestamp) error {
+				return json.Unmarshal(b, n)
+			},
+		},
+		{
+			"UnmarshalJSON",
+			func(b []byte, n *nullable.Timestamp) error {
+				return n.UnmarshalJSON(b)
+			},
+		},
+	}
+
 	t.Run("failure", func(t *testing.T) {
 		tcs := []struct {
 			name string
@@ -236,36 +243,107 @@ func TestTimestamp_UnmarshalJSON(t *testing.T) {
 			want string
 		}{
 			{
+				"nil",
+				nil,
+				"",
+			},
+			{
 				"empty",
 				[]byte{},
 				"",
 			},
 			{
-				"number: exceeds int64 range",
-				[]byte(`9223372036854775808`),
-				"",
+				"unquoted string bytes: boolean",
+				[]byte(`true`),
+				"unsupported json token kind: true",
 			},
 			{
-				"number: fractional",
-				[]byte(`1231006505.0`),
-				"",
+				"unquoted string bytes: truncated null",
+				[]byte(`nul`),
+				"failed to read token",
 			},
 			{
-				"number: exponential",
-				[]byte(`1231006505e0`),
-				"",
-			},
-			{
-				"string: empty",
+				"quoted string bytes: empty",
 				[]byte(`""`),
-				"",
+				"invalid string: empty",
+			},
+		}
+
+		for _, tc := range tcs {
+			t.Run(tc.name, func(t *testing.T) {
+				for _, dec := range decs {
+					t.Run(dec.name, func(t *testing.T) {
+						var n nullable.Timestamp
+						err := dec.unmarshal(tc.in, &n)
+						require.ErrorContains(t, err, tc.want)
+					})
+				}
+			})
+		}
+	})
+
+	t.Run("success", func(t *testing.T) {
+		tcs := []struct {
+			name string
+			in   []byte
+			want nullable.Timestamp
+		}{
+			{
+				"unquoted string bytes: null",
+				[]byte(`null`),
+				nullable.NewTimestamp(timeutil.Timestamp{}, false),
+			},
+			{
+				"unquoted decimal string bytes: positive",
+				[]byte(`1231006505`),
+				nullable.NewTimestamp(timeutil.NewTimestampFromUnix(1231006505), true),
+			},
+			{
+				"quoted decimal string bytes: positive",
+				[]byte(`"1231006505"`),
+				nullable.NewTimestamp(timeutil.NewTimestampFromUnix(1231006505), true),
+			},
+		}
+
+		for _, tc := range tcs {
+			t.Run(tc.name, func(t *testing.T) {
+				for _, dec := range decs {
+					t.Run(dec.name, func(t *testing.T) {
+						var n nullable.Timestamp
+						err := dec.unmarshal(tc.in, &n)
+						require.NoError(t, err)
+						require.Equal(t, tc.want.Valid, n.Valid)
+						require.Equal(t, tc.want.Timestamp.Unix(), n.Timestamp.Unix())
+					})
+				}
+			})
+		}
+	})
+}
+
+func TestTimestamp_YAMLUnmarshaling(t *testing.T) {
+	t.Run("failure", func(t *testing.T) {
+		tcs := []struct {
+			name string
+			in   []byte
+			want string
+		}{
+			{
+				"unquoted string bytes: sequence",
+				[]byte(`[]`),
+				"invalid node",
+			},
+			{
+				"quoted string bytes: empty",
+				[]byte(`""`),
+				"invalid node",
 			},
 		}
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				var n nullable.Timestamp
-				err := n.UnmarshalJSON(tc.in)
+				err := yaml.Unmarshal(tc.in, &n)
 				require.ErrorContains(t, err, tc.want)
 			})
 		}
@@ -278,49 +356,75 @@ func TestTimestamp_UnmarshalJSON(t *testing.T) {
 			want nullable.Timestamp
 		}{
 			{
-				"null",
+				"unquoted string bytes: null",
 				[]byte(`null`),
 				nullable.NewTimestamp(timeutil.Timestamp{}, false),
 			},
 			{
-				"number: zero",
-				[]byte(`0`),
-				nullable.NewTimestamp(timeutil.NewTimestampFromUnix(0), true),
-			},
-			{
-				"number: positive",
+				"unquoted decimal string bytes: positive",
 				[]byte(`1231006505`),
 				nullable.NewTimestamp(timeutil.NewTimestampFromUnix(1231006505), true),
 			},
 			{
-				"number: negative",
-				[]byte(`-1231006505`),
-				nullable.NewTimestamp(timeutil.NewTimestampFromUnix(-1231006505), true),
-			},
-			{
-				"string: zero",
-				[]byte(`"0"`),
-				nullable.NewTimestamp(timeutil.NewTimestampFromUnix(0), true),
-			},
-			{
-				"string: positive decimal",
+				"quoted decimal string bytes: positive",
 				[]byte(`"1231006505"`),
 				nullable.NewTimestamp(timeutil.NewTimestampFromUnix(1231006505), true),
-			},
-			{
-				"string: negative decimal",
-				[]byte(`"-1231006505"`),
-				nullable.NewTimestamp(timeutil.NewTimestampFromUnix(-1231006505), true),
 			},
 		}
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				var n nullable.Timestamp
-				err := n.UnmarshalJSON(tc.in)
+				err := yaml.Unmarshal(tc.in, &n)
 				require.NoError(t, err)
 				require.Equal(t, tc.want.Valid, n.Valid)
 				require.Equal(t, tc.want.Timestamp.Unix(), n.Timestamp.Unix())
+			})
+		}
+	})
+
+	t.Run("success: null node", func(t *testing.T) {
+		tcs := []struct {
+			name string
+			in   *yaml.Node
+		}{
+			{
+				"no value with short tag",
+				&yaml.Node{
+					Kind: yaml.ScalarNode,
+					Tag:  "!!null",
+				},
+			},
+			{
+				"no value with long tag",
+				&yaml.Node{
+					Kind: yaml.ScalarNode,
+					Tag:  "tag:yaml.org,2002:null",
+				},
+			},
+			{
+				"null",
+				&yaml.Node{
+					Kind:  yaml.ScalarNode,
+					Value: "null",
+				},
+			},
+			{
+				"tilde",
+				&yaml.Node{
+					Kind:  yaml.ScalarNode,
+					Value: "~",
+				},
+			},
+		}
+
+		for _, tc := range tcs {
+			t.Run(tc.name, func(t *testing.T) {
+				n := nullable.NewTimestamp(timeutil.NewTimestampFromUnix(1231006505), true)
+				err := n.UnmarshalYAML(tc.in)
+				require.NoError(t, err)
+				require.False(t, n.Valid)
+				require.Equal(t, timeutil.Timestamp{}.Unix(), n.Timestamp.Unix())
 			})
 		}
 	})
