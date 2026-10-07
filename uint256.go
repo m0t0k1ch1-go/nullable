@@ -90,18 +90,13 @@ func (n Uint256) MarshalJSON() ([]byte, error) {
 }
 
 // MarshalYAML implements [yaml.Marshaler].
-// It encodes n by delegating to [bigutil.Uint256.MarshalText] and returning the result as a string (or as nil if n is invalid).
+// It encodes n by delegating to [bigutil.Uint256.MarshalYAML] (or as nil if n is invalid).
 func (n Uint256) MarshalYAML() (any, error) {
 	if !n.Valid {
 		return nil, nil
 	}
 
-	b, err := n.Uint256.MarshalText()
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal text: %w", err)
-	}
-
-	return string(b), nil
+	return n.Uint256.MarshalYAML()
 }
 
 // UnmarshalJSONFrom implements [json.UnmarshalerFrom].
@@ -136,7 +131,7 @@ func (n *Uint256) UnmarshalJSON(b []byte) error {
 }
 
 // UnmarshalYAML implements [yaml.Unmarshaler].
-// It decodes a scalar from value into n by delegating to [bigutil.Uint256.UnmarshalText]; a scalar tagged !!null makes n invalid.
+// It decodes value into n by delegating to [bigutil.Uint256.UnmarshalYAML]; a scalar tagged !!null makes n invalid.
 // Note that [go.yaml.in/yaml/v3] never calls this method for null nodes and leaves n unchanged instead.
 func (n *Uint256) UnmarshalYAML(value *yaml.Node) error {
 	if value.ShortTag() == "!!null" {
@@ -145,14 +140,9 @@ func (n *Uint256) UnmarshalYAML(value *yaml.Node) error {
 		return nil
 	}
 
-	var s string
-	if err := value.Decode(&s); err != nil {
-		return fmt.Errorf("invalid node: %w", err)
-	}
-
 	var x256 bigutil.Uint256
-	if err := x256.UnmarshalText([]byte(s)); err != nil {
-		return fmt.Errorf("invalid node: %w", err)
+	if err := x256.UnmarshalYAML(value); err != nil {
+		return err
 	}
 
 	n.Uint256, n.Valid = x256, true
