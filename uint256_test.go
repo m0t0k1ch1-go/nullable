@@ -1,30 +1,28 @@
 package nullable_test
 
 import (
-	"bytes"
 	"database/sql"
 	"database/sql/driver"
-	"encoding/json"
-	"math/big"
-	"strings"
+	"encoding/json/v2"
 	"testing"
 
 	"github.com/m0t0k1ch1-go/bigutil/v3"
 	"github.com/stretchr/testify/require"
+	"go.yaml.in/yaml/v3"
 
 	"github.com/m0t0k1ch1-go/nullable/v3"
-)
-
-var (
-	maxUint256 = new(big.Int).Sub(new(big.Int).Exp(big.NewInt(2), big.NewInt(256), nil), big.NewInt(1))
 )
 
 func TestUint256(t *testing.T) {
 	var n nullable.Uint256
 	require.Implements(t, (*driver.Valuer)(nil), &n)
 	require.Implements(t, (*sql.Scanner)(nil), &n)
+	require.Implements(t, (*json.MarshalerTo)(nil), &n)
 	require.Implements(t, (*json.Marshaler)(nil), &n)
+	require.Implements(t, (*yaml.Marshaler)(nil), &n)
+	require.Implements(t, (*json.UnmarshalerFrom)(nil), &n)
 	require.Implements(t, (*json.Unmarshaler)(nil), &n)
+	require.Implements(t, (*yaml.Unmarshaler)(nil), &n)
 }
 
 func TestUint256_NullableString(t *testing.T) {
@@ -35,24 +33,14 @@ func TestUint256_NullableString(t *testing.T) {
 			want nullable.String
 		}{
 			{
-				"null",
+				"invalid",
 				nullable.NewUint256(bigutil.Uint256{}, false),
 				nullable.NewString("", false),
 			},
 			{
-				"zero",
-				nullable.NewUint256(bigutil.NewUint256FromUint64(0), true),
-				nullable.NewString("0x0", true),
-			},
-			{
-				"one",
+				"valid: one",
 				nullable.NewUint256(bigutil.NewUint256FromUint64(1), true),
 				nullable.NewString("0x1", true),
-			},
-			{
-				"max",
-				nullable.NewUint256(bigutil.MustNewUint256(maxUint256), true),
-				nullable.NewString("0x"+strings.Repeat("f", 64), true),
 			},
 		}
 
@@ -74,24 +62,14 @@ func TestUint256_Value(t *testing.T) {
 			want driver.Value
 		}{
 			{
-				"null",
+				"invalid",
 				nullable.NewUint256(bigutil.Uint256{}, false),
 				nil,
 			},
 			{
-				"zero",
-				nullable.NewUint256(bigutil.NewUint256FromUint64(0), true),
-				[]byte{0x0},
-			},
-			{
-				"one",
+				"valid: one",
 				nullable.NewUint256(bigutil.NewUint256FromUint64(1), true),
-				[]byte{0x1},
-			},
-			{
-				"max",
-				nullable.NewUint256(bigutil.MustNewUint256(maxUint256), true),
-				bytes.Repeat([]byte{0xff}, 32),
+				[]byte{0x01},
 			},
 		}
 
@@ -115,17 +93,7 @@ func TestUint256_Scan(t *testing.T) {
 			{
 				"int64",
 				int64(0),
-				"",
-			},
-			{
-				"[]byte: empty",
-				[]byte{},
-				"",
-			},
-			{
-				"[]byte: exceeds 256 bits",
-				append([]byte{0x01}, bytes.Repeat([]byte{0x00}, 32)...),
-				"",
+				"unsupported source type: int64",
 			},
 		}
 
@@ -150,19 +118,9 @@ func TestUint256_Scan(t *testing.T) {
 				nullable.NewUint256(bigutil.Uint256{}, false),
 			},
 			{
-				"[]byte: zero",
-				[]byte{0x00},
-				nullable.NewUint256(bigutil.NewUint256FromUint64(0), true),
-			},
-			{
-				"[]byte: one",
+				"bytes: one",
 				[]byte{0x01},
 				nullable.NewUint256(bigutil.NewUint256FromUint64(1), true),
-			},
-			{
-				"[]byte: max",
-				bytes.Repeat([]byte{0xff}, 32),
-				nullable.NewUint256(bigutil.MustNewUint256(maxUint256), true),
 			},
 		}
 
@@ -178,7 +136,25 @@ func TestUint256_Scan(t *testing.T) {
 	})
 }
 
-func TestUint256_MarshalJSON(t *testing.T) {
+func TestUint256_JSONMarshaling(t *testing.T) {
+	encs := []struct {
+		name    string
+		marshal func(nullable.Uint256) ([]byte, error)
+	}{
+		{
+			"json.Marshal",
+			func(n nullable.Uint256) ([]byte, error) {
+				return json.Marshal(n)
+			},
+		},
+		{
+			"MarshalJSON",
+			func(n nullable.Uint256) ([]byte, error) {
+				return n.MarshalJSON()
+			},
+		},
+	}
+
 	t.Run("success", func(t *testing.T) {
 		tcs := []struct {
 			name string
@@ -186,38 +162,79 @@ func TestUint256_MarshalJSON(t *testing.T) {
 			want []byte
 		}{
 			{
-				"null",
+				"invalid",
 				nullable.NewUint256(bigutil.Uint256{}, false),
 				[]byte(`null`),
 			},
 			{
-				"zero",
-				nullable.NewUint256(bigutil.NewUint256FromUint64(0), true),
-				[]byte(`"0x0"`),
-			},
-			{
-				"one",
+				"valid: one",
 				nullable.NewUint256(bigutil.NewUint256FromUint64(1), true),
 				[]byte(`"0x1"`),
-			},
-			{
-				"max",
-				nullable.NewUint256(bigutil.MustNewUint256(maxUint256), true),
-				[]byte(`"0x` + strings.Repeat("f", 64) + `"`),
 			},
 		}
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
-				b, err := tc.in.MarshalJSON()
-				require.NoError(t, err)
-				require.Equal(t, tc.want, b)
+				for _, enc := range encs {
+					t.Run(enc.name, func(t *testing.T) {
+						b, err := enc.marshal(tc.in)
+						require.NoError(t, err)
+						require.Equal(t, tc.want, b)
+					})
+				}
 			})
 		}
 	})
 }
 
-func TestUint256_UnmarshalJSON(t *testing.T) {
+func TestUint256_YAMLMarshaling(t *testing.T) {
+	t.Run("success", func(t *testing.T) {
+		tcs := []struct {
+			name string
+			in   nullable.Uint256
+			want []byte
+		}{
+			{
+				"invalid",
+				nullable.NewUint256(bigutil.Uint256{}, false),
+				[]byte("null\n"),
+			},
+			{
+				"valid: one",
+				nullable.NewUint256(bigutil.NewUint256FromUint64(1), true),
+				[]byte("\"0x1\"\n"),
+			},
+		}
+
+		for _, tc := range tcs {
+			t.Run(tc.name, func(t *testing.T) {
+				v, err := yaml.Marshal(tc.in)
+				require.NoError(t, err)
+				require.Equal(t, tc.want, v)
+			})
+		}
+	})
+}
+
+func TestUint256_JSONUnmarshaling(t *testing.T) {
+	decs := []struct {
+		name      string
+		unmarshal func([]byte, *nullable.Uint256) error
+	}{
+		{
+			"json.Unmarshal",
+			func(b []byte, n *nullable.Uint256) error {
+				return json.Unmarshal(b, n)
+			},
+		},
+		{
+			"UnmarshalJSON",
+			func(b []byte, n *nullable.Uint256) error {
+				return n.UnmarshalJSON(b)
+			},
+		},
+	}
+
 	t.Run("failure", func(t *testing.T) {
 		tcs := []struct {
 			name string
@@ -225,71 +242,107 @@ func TestUint256_UnmarshalJSON(t *testing.T) {
 			want string
 		}{
 			{
+				"nil",
+				nil,
+				"",
+			},
+			{
 				"empty",
 				[]byte{},
 				"",
 			},
 			{
-				"number: negative",
-				[]byte(`-1`),
-				"",
+				"unquoted string bytes: boolean",
+				[]byte(`true`),
+				"unsupported json token kind: true",
 			},
 			{
-				"number: exceeds 256 bits",
-				[]byte(`115792089237316195423570985008687907853269984665640564039457584007913129639936`),
-				"",
+				"unquoted string bytes: truncated null",
+				[]byte(`nul`),
+				"failed to read token",
 			},
 			{
-				"number: fractional",
-				[]byte(`0.0`),
-				"",
-			},
-			{
-				"number: exponential",
-				[]byte(`0e0`),
-				"",
-			},
-			{
-				"string: empty",
+				"quoted string bytes: empty",
 				[]byte(`""`),
-				"",
+				"invalid string: empty",
+			},
+		}
+
+		for _, tc := range tcs {
+			t.Run(tc.name, func(t *testing.T) {
+				for _, dec := range decs {
+					t.Run(dec.name, func(t *testing.T) {
+						var n nullable.Uint256
+						err := dec.unmarshal(tc.in, &n)
+						require.ErrorContains(t, err, tc.want)
+					})
+				}
+			})
+		}
+	})
+
+	t.Run("success", func(t *testing.T) {
+		tcs := []struct {
+			name string
+			in   []byte
+			want nullable.Uint256
+		}{
+			{
+				"unquoted string bytes: null",
+				[]byte(`null`),
+				nullable.NewUint256(bigutil.Uint256{}, false),
 			},
 			{
-				"string: invalid decimal",
-				[]byte(`"invalid"`),
-				"",
+				"quoted hexadecimal string bytes: one",
+				[]byte(`"0x1"`),
+				nullable.NewUint256(bigutil.NewUint256FromUint64(1), true),
 			},
 			{
-				"string: negative decimal",
-				[]byte(`"-1"`),
-				"",
+				"unquoted decimal string bytes: one",
+				[]byte(`1`),
+				nullable.NewUint256(bigutil.NewUint256FromUint64(1), true),
+			},
+		}
+
+		for _, tc := range tcs {
+			t.Run(tc.name, func(t *testing.T) {
+				for _, dec := range decs {
+					t.Run(dec.name, func(t *testing.T) {
+						var n nullable.Uint256
+						err := dec.unmarshal(tc.in, &n)
+						require.NoError(t, err)
+						require.Equal(t, tc.want.Valid, n.Valid)
+						require.Equal(t, tc.want.Uint256.String(), n.Uint256.String())
+					})
+				}
+			})
+		}
+	})
+}
+
+func TestUint256_YAMLUnmarshaling(t *testing.T) {
+	t.Run("failure", func(t *testing.T) {
+		tcs := []struct {
+			name string
+			in   []byte
+			want string
+		}{
+			{
+				"unquoted string bytes: sequence",
+				[]byte(`[]`),
+				"invalid node",
 			},
 			{
-				"string: missing hex digits after 0x prefix",
-				[]byte(`"0x"`),
-				"",
-			},
-			{
-				"string: hex contains invalid escape sequences",
-				[]byte(`"0x\x"`),
-				"",
-			},
-			{
-				"string: hex contains non-hex characters",
-				[]byte(`"0xg"`),
-				"",
-			},
-			{
-				"string: hex exceeds 256 bits",
-				[]byte(`"0x1` + strings.Repeat("0", 64) + `"`),
-				"",
+				"quoted string bytes: empty",
+				[]byte(`""`),
+				"invalid node",
 			},
 		}
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				var n nullable.Uint256
-				err := n.UnmarshalJSON(tc.in)
+				err := yaml.Unmarshal(tc.in, &n)
 				require.ErrorContains(t, err, tc.want)
 			})
 		}
@@ -302,64 +355,80 @@ func TestUint256_UnmarshalJSON(t *testing.T) {
 			want nullable.Uint256
 		}{
 			{
-				"null",
+				"unquoted string bytes: null",
 				[]byte(`null`),
 				nullable.NewUint256(bigutil.Uint256{}, false),
 			},
 			{
-				"number: zero",
-				[]byte(`0`),
-				nullable.NewUint256(bigutil.NewUint256FromUint64(0), true),
-			},
-			{
-				"number: one",
-				[]byte(`1`),
+				"unquoted hexadecimal string bytes: one",
+				[]byte(`0x1`),
 				nullable.NewUint256(bigutil.NewUint256FromUint64(1), true),
 			},
 			{
-				"number: max",
-				[]byte(`115792089237316195423570985008687907853269984665640564039457584007913129639935`),
-				nullable.NewUint256(bigutil.MustNewUint256(maxUint256), true),
-			},
-			{
-				"string: decimal zero",
-				[]byte(`"0"`),
-				nullable.NewUint256(bigutil.NewUint256FromUint64(0), true),
-			},
-			{
-				"string: decimal one",
-				[]byte(`"1"`),
-				nullable.NewUint256(bigutil.NewUint256FromUint64(1), true),
-			},
-			{
-				"string: decimal max",
-				[]byte(`"115792089237316195423570985008687907853269984665640564039457584007913129639935"`),
-				nullable.NewUint256(bigutil.MustNewUint256(maxUint256), true),
-			},
-			{
-				"string: hex zero",
-				[]byte(`"0x0"`),
-				nullable.NewUint256(bigutil.NewUint256FromUint64(0), true),
-			},
-			{
-				"string: hex one",
+				"quoted hexadecimal string bytes: one",
 				[]byte(`"0x1"`),
 				nullable.NewUint256(bigutil.NewUint256FromUint64(1), true),
 			},
 			{
-				"string: mixedcase hex max",
-				[]byte(`"0x` + strings.Repeat("fF", 32) + `"`),
-				nullable.NewUint256(bigutil.MustNewUint256(maxUint256), true),
+				"unquoted decimal string bytes: one",
+				[]byte(`1`),
+				nullable.NewUint256(bigutil.NewUint256FromUint64(1), true),
 			},
 		}
 
 		for _, tc := range tcs {
 			t.Run(tc.name, func(t *testing.T) {
 				var n nullable.Uint256
-				err := n.UnmarshalJSON(tc.in)
+				err := yaml.Unmarshal(tc.in, &n)
 				require.NoError(t, err)
 				require.Equal(t, tc.want.Valid, n.Valid)
 				require.Equal(t, tc.want.Uint256.String(), n.Uint256.String())
+			})
+		}
+	})
+
+	t.Run("success: null node", func(t *testing.T) {
+		tcs := []struct {
+			name string
+			in   *yaml.Node
+		}{
+			{
+				"no value with short tag",
+				&yaml.Node{
+					Kind: yaml.ScalarNode,
+					Tag:  "!!null",
+				},
+			},
+			{
+				"no value with long tag",
+				&yaml.Node{
+					Kind: yaml.ScalarNode,
+					Tag:  "tag:yaml.org,2002:null",
+				},
+			},
+			{
+				"null",
+				&yaml.Node{
+					Kind:  yaml.ScalarNode,
+					Value: "null",
+				},
+			},
+			{
+				"tilde",
+				&yaml.Node{
+					Kind:  yaml.ScalarNode,
+					Value: "~",
+				},
+			},
+		}
+
+		for _, tc := range tcs {
+			t.Run(tc.name, func(t *testing.T) {
+				n := nullable.NewUint256(bigutil.NewUint256FromUint64(1), true)
+				err := n.UnmarshalYAML(tc.in)
+				require.NoError(t, err)
+				require.False(t, n.Valid)
+				require.Equal(t, "0x0", n.Uint256.String())
 			})
 		}
 	})
