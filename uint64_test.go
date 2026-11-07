@@ -176,12 +176,12 @@ func TestUint64_Scan(t *testing.T) {
 			{
 				"int64: negative",
 				int64(-1),
-				"invalid int64 source: negative",
+				"invalid int64 source: must not be negative",
 			},
 			{
 				"bytes: empty",
 				[]byte{},
-				"invalid bytes source: empty",
+				"invalid bytes source: must not be empty",
 			},
 			{
 				"bytes: invalid",
