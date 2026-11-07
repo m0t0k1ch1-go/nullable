@@ -108,14 +108,16 @@ func (n EthAddress) MarshalYAML() (any, error) {
 func (n *EthAddress) UnmarshalJSONFrom(dec *jsontext.Decoder) error {
 	switch k := dec.PeekKind(); k {
 	case jsontext.KindString:
-		var s string
-		if err := json.UnmarshalDecode(dec, &s); err != nil {
-			return fmt.Errorf("invalid string: %w", err)
-		}
-
 		var a ethcommon.Address
-		if err := a.UnmarshalText([]byte(s)); err != nil {
-			return fmt.Errorf("invalid string: %w", err)
+		{
+			var s string
+			if err := json.UnmarshalDecode(dec, &s); err != nil {
+				return fmt.Errorf("invalid string: %w", err)
+			}
+
+			if err := a.UnmarshalText([]byte(s)); err != nil {
+				return fmt.Errorf("invalid string: %w", err)
+			}
 		}
 
 		n.EthAddress, n.Valid = a, true
@@ -152,14 +154,16 @@ func (n *EthAddress) UnmarshalYAML(value *yaml.Node) error {
 		return nil
 	}
 
-	var s string
-	if err := value.Decode(&s); err != nil {
-		return fmt.Errorf("invalid node: %w", err)
-	}
-
 	var a ethcommon.Address
-	if err := a.UnmarshalText([]byte(s)); err != nil {
-		return fmt.Errorf("invalid node: %w", err)
+	{
+		var s string
+		if err := value.Decode(&s); err != nil {
+			return fmt.Errorf("invalid node: %w", err)
+		}
+
+		if err := a.UnmarshalText([]byte(s)); err != nil {
+			return fmt.Errorf("invalid node: %w", err)
+		}
 	}
 
 	n.EthAddress, n.Valid = a, true
