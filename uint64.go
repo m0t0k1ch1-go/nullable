@@ -82,7 +82,7 @@ func (n *Uint64) Scan(src any) error {
 	switch src := src.(type) {
 	case int64:
 		if src < 0 {
-			return errors.New("invalid int64 source: negative")
+			return errors.New("invalid int64 source: must not be negative")
 		}
 
 		n.Uint64, n.Valid = uint64(src), true
@@ -96,7 +96,7 @@ func (n *Uint64) Scan(src any) error {
 
 	case []byte:
 		if len(src) == 0 {
-			return errors.New("invalid bytes source: empty")
+			return errors.New("invalid bytes source: must not be empty")
 		}
 
 		i, err := strconv.ParseUint(string(src), 10, 64)
