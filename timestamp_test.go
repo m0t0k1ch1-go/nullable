@@ -265,7 +265,7 @@ func TestTimestamp_JSONUnmarshaling(t *testing.T) {
 			{
 				"quoted string bytes: empty",
 				[]byte(`""`),
-				"invalid string: empty",
+				"invalid string: must not be empty",
 			},
 		}
 
